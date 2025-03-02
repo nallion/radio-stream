@@ -2,7 +2,7 @@ import os
 import subprocess
 
 # URL of the YouTube video
-youtube_url = "https://m.youtube.com/watch?v=1wECsnGZcfc"
+# youtube_url = "https://m.youtube.com/watch?v=1wECsnGZcf/live"
 
 # Use yt-dlp to extract audio and pipe it to FFmpeg
 command = f'yt-dlp -f bestaudio -o - "{youtube_url}" | ffmpeg -i pipe:0 -acodec libmp3lame -b:a 128k -f mp3 pipe:1'
