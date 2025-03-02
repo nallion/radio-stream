@@ -1,15 +1,16 @@
 # Use Python base image
+# Use Python base image
 FROM python:3.9
 
 # Install dependencies
 RUN apt-get update && apt-get install -y ffmpeg
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy files
-COPY script.py /app/script.py
-COPY requirements.txt /app/requirements.txt
-
+COPY . /app
 WORKDIR /app
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Start script
 CMD ["python3", "script.py"]
