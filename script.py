@@ -4,10 +4,20 @@ import signal
 import sys
 
 # URL of the YouTube video
-youtube_url = "https://www.youtube.com/@24OnLive/live"
+youtube_url = "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"  # Replace with your YouTube URL
 
-# Use yt-dlp to extract audio and pipe it to FFmpeg
-command = f'yt-dlp -f bestaudio -o - "{youtube_url}" | ffmpeg -i pipe:0 -acodec libmp3lame -b:a 128k -f mp3 pipe:1'
+# Stream audio to another device (e.g., Icecast server)
+# Replace icecast_url, username, and password with your streaming server details
+icecast_url = "http://your-icecast-server:8000/stream"
+username = "source"
+password = "your_password"
+
+# Command to stream audio using yt-dlp and ffmpeg
+command = (
+    f'yt-dlp -f bestaudio -o - "{youtube_url}" | '
+    f'ffmpeg -i pipe:0 -acodec libmp3lame -b:a 128k -f mp3 -content_type audio/mpeg '
+    f'icecast://{username}:{password}@{icecast_url}'
+)
 
 # Run the command
 try:
