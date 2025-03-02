@@ -4,7 +4,7 @@ import signal
 import sys
 
 # URL of the YouTube video
-youtube_url = "https://www.youtube.com/watch?v=1wECsnGZcf/live"
+youtube_url = "https://www.youtube.com/@24OnLive/live"
 
 # Use yt-dlp to extract audio and pipe it to FFmpeg
 command = f'yt-dlp -f bestaudio -o - "{youtube_url}" | ffmpeg -i pipe:0 -acodec libmp3lame -b:a 128k -f mp3 pipe:1'
