@@ -23,14 +23,18 @@ def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live."""
     try:
         ydl_opts = {
-            "format": "bestaudio",
+            "format": "bestaudio/best",
             "quiet": True,
             "noplaylist": True,
             "geo_bypass": True,
+            "live_from_start": True,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
-            return info["url"] if "url" in info else None
+            if "url" in info:
+                return info["url"]
+            if "formats" in info and info["formats"]:
+                return info["formats"][0].get("url")
     except Exception as e:
         print(f"Error extracting YouTube audio: {e}")
     return None
@@ -46,7 +50,7 @@ def generate_stream(url):
                 "-reconnect_delay_max", "5",
                 "-i", url,
                 "-vn",                         # disable video
-                "-b:a", "32k",                 # use a lower audio bitrate to reduce data usage/buffering
+                "-b:a", "32k",                 # lower bitrate to help reduce buffering
                 "-f", "mp3",
                 "-fflags", "nobuffer",
                 "-flags", "low_delay",
