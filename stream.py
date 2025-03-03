@@ -14,7 +14,7 @@ RADIO_STATIONS = {
     "valiyudheen_faizy": "https://www.youtube.com/@voiceofvaliyudheenfaizy600/live",
     "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
     "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
-    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live,
+    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
        
 }
 
