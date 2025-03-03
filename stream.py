@@ -7,12 +7,12 @@ app = Flask(name)
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/live/asianetnews/index.m3u8",
-    "24_news": "https://www.youtube.com/@24OnLive",
-    "yaqeen_institute": "https://www.youtube.com/@YaqeenInstitute",
-    "qsc_mukkam": "https://www.youtube.com/@quranhubmukkam",
-    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmani",
-    "valiyudheen_faizy": "https://www.youtube.com/@ValiyudheenFaizy",
-    "suprabhatam_online": "https://www.youtube.com/@SuprabhatamOnline"
+    "24_news": "https://www.youtube.com/@24OnLive/live",
+    "yaqeen_institute": "https://www.youtube.com/@YaqeenInstitute/live",
+    "qsc_mukkam": "https://www.youtube.com/@quranhubmukkam/live",
+    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmani/live",
+    "valiyudheen_faizy": "https://www.youtube.com/@ValiyudheenFaizy/live",
+
 }
 
 def get_youtube_audio_url(youtube_url):
