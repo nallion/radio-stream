@@ -1,15 +1,16 @@
-# Use Python base image
-FROM python:3.9
+# Use a base image with Python and FFmpeg
+FROM python:3.9-slim
 
-# Install dependencies
-RUN apt-get update && apt-get install -y ffmpeg
+# Install required packages
+RUN apt-get update && apt-get install -y ffmpeg && \
+    pip install flask yt-dlp
 
-# Copy files
-COPY . /app
+# Copy project files
 WORKDIR /app
+COPY stream.py .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Expose the port Flask runs on
+EXPOSE 8000
 
-# Start script
-CMD ["python3", "script.py"]
+# Run the Flask app
+CMD ["python", "stream.py"]
