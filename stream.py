@@ -15,7 +15,6 @@ RADIO_STATIONS = {
     "river_nile": "http://104.7.66.64:8087",
     "hajj_channel": "http://104.7.66.64:8005",
     "omar_kafi": "http://104.7.66.64:8007",
-    "24_news": "https://www.twentyfournews.com/live",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
     "victers_tv": "https://victers.kite.kerala.gov.in/victers_live/",
     "suprabhatam_online": "https://www.youtube.com/channel/UCsPsEKy0BeYpuLW5IGoTDrw/live",
@@ -43,7 +42,9 @@ def get_youtube_audio_url(youtube_url):
             if "url" in info:
                 return info["url"]
             if "formats" in info and info["formats"]:
-                return info["formats"][0].get("url")
+                for fmt in info["formats"]:
+                    if fmt.get("url"):
+                        return fmt["url"]  # Fallback method
     except Exception as e:
         print(f"Error extracting YouTube audio: {e}")
     return None
@@ -54,25 +55,21 @@ def generate_stream(url):
         process = subprocess.Popen(
             [
                 "ffmpeg",
-                "-reconnect", "1",
-                "-reconnect_streamed", "1",
-                "-reconnect_delay_max", "5",
                 "-i", url,
-                "-vn",                         # disable video
-                "-b:a", "32k",                 # lower bitrate to help reduce buffering
+                "-vn",             # Disable video
+                "-b:a", "32k",     # Reduce bitrate to minimize buffering
                 "-f", "mp3",
                 "-fflags", "nobuffer",
                 "-flags", "low_delay",
                 "-"
             ],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.DEVNULL  # Hide logs for cleaner output
         )
-        while True:
-            chunk = process.stdout.read(4096)
-            if not chunk:
-                break
+        
+        for chunk in iter(lambda: process.stdout.read(4096), b""):
             yield chunk
+
     except Exception as e:
         print(f"FFmpeg error: {e}")
 
@@ -81,11 +78,15 @@ def stream(station_name):
     """Serve the requested station as a live stream."""
     if station_name in RADIO_STATIONS:
         url = RADIO_STATIONS[station_name]
+        
+        # If it's a YouTube Live link, get a fresh URL
         if "youtube.com" in url or "youtu.be" in url:
             url = get_youtube_audio_url(url)
             if not url:
                 return "Failed to get YouTube stream", 500
+        
         return Response(generate_stream(url), mimetype="audio/mpeg")
+
     return "Station not found", 404
 
 if __name__ == "__main__":
