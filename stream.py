@@ -48,7 +48,7 @@ RADIO_STATIONS = {
     "radio_digital_malayali": "https://radio.digitalmalayali.in/listen/stream/radio.mp3",
     "quran_radio_cairo": "http://n02.radiojar.com/8s5u5tpdtwzuv?listening-from-radio-garden-1620219571863&rj-ttl=5&rj-tok=AAABivzcwaEAh735PZBqcATySw",
     "quran_radio_nablus": "http://www.quran-radio.org:8002/",
-    "allahu_akbar_radio": "http://66.45.232.132.9996/",
+    "allahu_akbar_radio": "http://66.45.232.132:9996/",
     "yemen_talk_2": "http://stream.zeno.fm/7qv7c8eq7hhvv",
     "24_news": "https://www.youtube.com/@24OnLive/live",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
