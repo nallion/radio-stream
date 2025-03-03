@@ -14,7 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY stream.py stream.py
 
 # Expose the port Flask is running on
-EXPOSE 5000
+EXPOSE 8000
 
 # Command to run the Flask app
-CMD ["python", "stream.py"]
+CMD ["python", "stream.py", "--port=8000"]
+
