@@ -13,24 +13,43 @@ RADIO_STATIONS = {
     "qsc_mukkam": "https://www.youtube.com/c/quranstudycentremukkam/live",
     "valiyudheen_faizy": "https://www.youtube.com/@voiceofvaliyudheenfaizy600/live",
     "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
+    "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
+    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live,
        
 }
 
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live."""
-    ydl_opts = {"format": "bestaudio/best", "quiet": True, "extract_flat": True}
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(youtube_url, download=False)
-        return info.get("url")
+    try:
+        ydl_opts = {
+            "format": "bestaudio",
+            "quiet": True,
+            "noplaylist": True,
+            "geo_bypass": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+            if "url" in info:
+                return info["url"]
+    except Exception as e:
+        print(f"Error extracting YouTube audio: {e}")
+    return None
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg."""
-    process = subprocess.Popen(
-        ["ffmpeg", "-i", url, "-b:a", "64k", "-f", "mp3", "-"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL
-    )
-    return process.stdout
+    try:
+        process = subprocess.Popen(
+            ["ffmpeg", "-re", "-i", url, "-vn", "-b:a", "64k", "-f", "mp3", "-"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        while True:
+            chunk = process.stdout.read(4096)
+            if not chunk:
+                break
+            yield chunk
+    except Exception as e:
+        print(f"FFmpeg error: {e}")
 
 @app.route("/<station_name>")
 def stream(station_name):
