@@ -3,14 +3,16 @@ FROM python:3.9-slim
 
 # Install required packages
 RUN apt-get update && apt-get install -y ffmpeg && \
-    pip install flask yt-dlp
+    pip install --no-cache-dir flask yt-dlp
+
+# Set the working directory
+WORKDIR /app
 
 # Copy project files
-WORKDIR /app
-COPY stream.py .
+COPY . .
 
-# Expose the port Flask runs on
-EXPOSE 8000
+# Expose the correct port
+EXPOSE 3000
 
 # Run the Flask app
 CMD ["python", "stream.py"]
