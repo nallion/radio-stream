@@ -62,9 +62,8 @@ RADIO_STATIONS = {
     "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
     "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
 }
-
 def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live."""
+    """Fetches a fresh direct audio stream URL from YouTube Live."""
     try:
         ydl_opts = {
             "format": "bestaudio/best",
@@ -74,10 +73,10 @@ def get_youtube_audio_url(youtube_url):
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
-            if "url" in info:
+            if info and "url" in info:
                 return info["url"]
-            if "formats" in info and info["formats"]:
-                return info["formats"][0].get("url")
+            if "formats" in info:
+                return next((f["url"] for f in info["formats"] if "audio" in f["format"]), None)
     except Exception as e:
         print(f"Error extracting YouTube audio: {e}")
     return None
@@ -87,7 +86,7 @@ def generate_stream(url):
     process = subprocess.Popen(
         ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
          "-i", url, "-vn", "-b:a", "64k", "-f", "mp3", "-"],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)  # Suppress logs
     return process.stdout
 
 @app.route("/<station_name>")
@@ -97,6 +96,7 @@ def stream(station_name):
     if not url:
         return "Station not found", 404
 
+    # Fetch fresh YouTube Live stream URL if needed
     if "youtube.com" in url or "youtu.be" in url:
         url = get_youtube_audio_url(url)
         if not url:
