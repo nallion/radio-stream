@@ -8,7 +8,7 @@ RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
     "air_calicut": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio082/chunklist.m3u8",
     "manjeri_fm": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio101/chunklist.m3u8",
-    "ruqya_radio"; "http://104.7.66.64:8004",
+    "ruqya_radio": "http://104.7.66.64:8004",
     "motivational_series": "http://104.7.66.64:8010",
     "deenagers_radio": "http://104.7.66.64:8003/",
     "siratul_mustaqim": "http://104.7.66.64:8091/stream",
