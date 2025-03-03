@@ -1,18 +1,20 @@
-# Use a base image with Python and FFmpeg
+# Use the official lightweight Python image
 FROM python:3.9-slim
 
-# Install required packages
-RUN apt-get update && apt-get install -y ffmpeg && \
-    pip install --no-cache-dir flask yt-dlp
-
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy project files
-COPY . .
+# Copy the requirements file
+COPY requirements.txt requirements.txt
 
-# Expose the correct port
-EXPOSE 3000
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the Flask app
+# Copy the Python script into the container
+COPY stream.py stream.py
+
+# Expose the port Flask is running on
+EXPOSE 5000
+
+# Command to run the Flask app
 CMD ["python", "stream.py"]
