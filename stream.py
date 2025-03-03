@@ -12,24 +12,29 @@ RADIO_STATIONS = {
     "qsc_mukkam": "https://www.youtube.com/@quranhubmukkam/live",
     "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmani/live",
     "valiyudheen_faizy": "https://www.youtube.com/@ValiyudheenFaizy/live",
-
 }
 
 def get_youtube_audio_url(youtube_url):
     """ Extracts direct audio stream URL from YouTube Live """
     ydl_opts = {
-        "format": "bestaudio/best",
+        "format": "bestaudio",
         "quiet": True,
-        "extract_flat": True
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(youtube_url, download=False)
-        return info["url"] if "url" in info else None
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+            return info.get("url")
+    except Exception as e:
+        print(f"Error extracting YouTube stream: {e}")
+        return None
 
 def generate_stream(url):
     """ Transcodes and serves audio using FFmpeg """
     process = subprocess.Popen(
-        ["ffmpeg", "-i", url, "-b:a", "64k", "-f", "mp3", "-"],
+        [
+            "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
+            "-i", url, "-b:a", "64k", "-f", "mp3", "-"
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL  # Hide logs
     )
