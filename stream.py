@@ -52,9 +52,11 @@ def stream(station_name):
             if not url:
                 return "Failed to get YouTube stream", 500
 
-        return Response(generate_stream(url), mimetype="audio/mpeg")
+        return Response(generate_stream(url),
+                        mimetype="audio/mpeg",
+                        headers={"Access-Control-Allow-Origin": "*"})
 
     return "Station not found", 404
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=3000, debug=True)
