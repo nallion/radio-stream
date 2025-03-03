@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
+    "24_news": "https://www.youtube.com/@24OnLive/live",
     "air_calicut": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio082/chunklist.m3u8",
     "manjeri_fm": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio101/chunklist.m3u8",
     "ruqya_radio": "http://104.7.66.64:8004",
@@ -16,7 +17,7 @@ RADIO_STATIONS = {
     "hajj_channel": "http://104.7.66.64:8005",
     "omar_kafi": "http://104.7.66.64:8007",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
-    "victers_tv": "https://victers.kite.kerala.gov.in/victers_live/",
+    "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",
     "suprabhatam_online": "https://www.youtube.com/channel/UCsPsEKy0BeYpuLW5IGoTDrw/live",
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
     "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmaniOfficial/live",
