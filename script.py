@@ -1,44 +1,55 @@
-import os
 import subprocess
-import signal
-import sys
+from flask import Flask, Response
+import yt_dlp
 
-# URL of the YouTube video
-youtube_url = "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"  # Replace with your YouTube URL
+app = Flask(name)
 
-# Stream audio to another device (e.g., Icecast server)
-# Replace icecast_url, username, and password with your streaming server details
-icecast_url = "http://your-icecast-server:8000/stream"
-username = "source"
-password = "your_password"
+# List of radio stations & YouTube Live links
+RADIO_STATIONS = {
+    "asianet_news": "https://vidcdn.vidgyor.com/live/asianetnews/index.m3u8",
+    "24_news": "https://www.youtube.com/@24OnLive",
+    "yaqeen_institute": "https://www.youtube.com/@YaqeenInstitute",
+    "qsc_mukkam": "https://www.youtube.com/@quranhubmukkam",
+    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmani",
+    "valiyudheen_faizy": "https://www.youtube.com/@ValiyudheenFaizy",
+    "suprabhatam_online": "https://www.youtube.com/@SuprabhatamOnline"
+}
 
-# Command to stream audio using yt-dlp and ffmpeg
-command = (
-    f'yt-dlp -f bestaudio -o - "{youtube_url}" | '
-    f'ffmpeg -i pipe:0 -acodec libmp3lame -b:a 128k -f mp3 -content_type audio/mpeg '
-    f'icecast://{username}:{password}@{icecast_url}'
-)
+def get_youtube_audio_url(youtube_url):
+    """ Extracts direct audio stream URL from YouTube Live """
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "quiet": True,
+        "extract_flat": True
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(youtube_url, download=False)
+        return info["url"] if "url" in info else None
 
-# Run the command
-try:
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-except Exception as e:
-    print(f"Error starting subprocess: {e}")
-    exit(1)
+def generate_stream(url):
+    """ Transcodes and serves audio using FFmpeg """
+    process = subprocess.Popen(
+        ["ffmpeg", "-i", url, "-b:a", "64k", "-f", "mp3", "-"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL  # Hide logs
+    )
+    return process.stdout
 
-# Signal handler for graceful shutdown
-def signal_handler(sig, frame):
-    print('Terminating process...')
-    process.terminate()
-    sys.exit(0)
+@app.route("/<station_name>")
+def stream(station_name):
+    """ Serve the requested station as a live stream """
+    if station_name in RADIO_STATIONS:
+        url = RADIO_STATIONS[station_name]
 
-signal.signal(signal.SIGINT, signal_handler)
+        # If it's a YouTube Live link, extract the audio stream
+        if "youtube.com" in url or "youtu.be" in url:
+            url = get_youtube_audio_url(url)
+            if not url:
+                return "Failed to get YouTube stream", 500
 
-# Keep running
-try:
-    while True:
-        output = process.stdout.read(1024)
-        if not output:
-            break
-except KeyboardInterrupt:
-    process.terminate()
+        return Response(generate_stream(url), mimetype="audio/mpeg")
+
+    return "Station not found", 404
+
+if name == "main":
+    app.run(host="0.0.0.0", port=8000, debug=True)
