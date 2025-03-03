@@ -2,7 +2,7 @@ import subprocess
 from flask import Flask, Response
 import yt_dlp
 
-app = Flask(name)
+app = Flask(__name__)
 
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
@@ -51,5 +51,5 @@ def stream(station_name):
 
     return "Station not found", 404
 
-if name == "main":
+if name == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
