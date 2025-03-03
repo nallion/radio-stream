@@ -5,11 +5,15 @@ import yt_dlp
 app = Flask(__name__)
 
 RADIO_STATIONS = {
-    "rubat_ataq": "http://stream.zeno.fm/5tpfc8d7xqruv",
-    "shahul_radio": "https://stream-150.zeno.fm/cynbm5ngx38uv",
-    "eram_fm": "http://icecast2.edisimo.com:8000/eramfm.mp3",
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
     "suprabhatam_online": "https://www.youtube.com/channel/UCsPsEKy0BeYpuLW5IGoTDrw/live",
+    "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
+    "24_news": "https://www.youtube.com/@24OnLive/live",
+    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmaniOfficial/live",
+    "qsc_mukkam": "https://www.youtube.com/c/quranstudycentremukkam/live",
+    "valiyudheen_faizy": "https://www.youtube.com/@voiceofvaliyudheenfaizy600/live",
+    "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
+       
 }
 
 def get_youtube_audio_url(youtube_url):
