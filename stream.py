@@ -4,59 +4,41 @@ import yt_dlp
 
 app = Flask(__name__)
 
-# List of radio stations & YouTube Live links
 RADIO_STATIONS = {
-    "asianet_news": "https://vidcdn.vidgyor.com/live/asianetnews/index.m3u8",
-    "24_news": "https://www.youtube.com/@24OnLive/live",
-    "yaqeen_institute": "https://www.youtube.com/@YaqeenInstitute/live",
-    "qsc_mukkam": "https://www.youtube.com/@quranhubmukkam/live",
-    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmani/live",
-    "valiyudheen_faizy": "https://www.youtube.com/@ValiyudheenFaizy/live",
+    "rubat_ataq": "http://stream.zeno.fm/5tpfc8d7xqruv",
+    "shahul_radio": "https://stream-150.zeno.fm/cynbm5ngx38uv",
+    "eram_fm": "http://icecast2.edisimo.com:8000/eramfm.mp3",
+    "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
+    "suprabhatam_online": "https://www.youtube.com/channel/UCsPsEKy0BeYpuLW5IGoTDrw/live",
 }
 
 def get_youtube_audio_url(youtube_url):
-    """ Extracts direct audio stream URL from YouTube Live """
-    ydl_opts = {
-        "format": "bestaudio",
-        "quiet": True,
-    }
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            return info.get("url")
-    except Exception as e:
-        print(f"Error extracting YouTube stream: {e}")
-        return None
+    """Extracts direct audio stream URL from YouTube Live."""
+    ydl_opts = {"format": "bestaudio/best", "quiet": True, "extract_flat": True}
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(youtube_url, download=False)
+        return info.get("url")
 
 def generate_stream(url):
-    """ Transcodes and serves audio using FFmpeg """
+    """Transcodes and serves audio using FFmpeg."""
     process = subprocess.Popen(
-        [
-            "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
-            "-i", url, "-b:a", "64k", "-f", "mp3", "-"
-        ],
+        ["ffmpeg", "-i", url, "-b:a", "64k", "-f", "mp3", "-"],
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL  # Hide logs
+        stderr=subprocess.DEVNULL
     )
     return process.stdout
 
 @app.route("/<station_name>")
 def stream(station_name):
-    """ Serve the requested station as a live stream """
+    """Serve the requested station as a live stream."""
     if station_name in RADIO_STATIONS:
         url = RADIO_STATIONS[station_name]
-
-        # If it's a YouTube Live link, extract the audio stream
         if "youtube.com" in url or "youtu.be" in url:
             url = get_youtube_audio_url(url)
             if not url:
                 return "Failed to get YouTube stream", 500
-
-        return Response(generate_stream(url),
-                        mimetype="audio/mpeg",
-                        headers={"Access-Control-Allow-Origin": "*"})
-
+        return Response(generate_stream(url), mimetype="audio/mpeg")
     return "Station not found", 404
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
