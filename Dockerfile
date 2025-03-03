@@ -1,21 +1,21 @@
-# Use the official lightweight Python image
+# Use an official lightweight Python image
 FROM python:3.9-slim
 
-# Set the working directory inside the container
+# Install dependencies
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory
 WORKDIR /app
 
-# Copy the requirements file
-COPY requirements.txt requirements.txt
-
-# Install dependencies
+# Copy the application files
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the Python script into the container
-COPY stream.py stream.py
+COPY . .
 
-# Expose the port Flask is running on
+# Expose port 8000
 EXPOSE 8000
 
-# Command to run the Flask app
-CMD ["python", "stream.py", "--port=8000"]
+# Run the application
+CMD ["python", "stream.py"]
 
