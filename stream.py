@@ -14,8 +14,7 @@ RADIO_STATIONS = {
     "valiyudheen_faizy": "https://www.youtube.com/@voiceofvaliyudheenfaizy600/live",
     "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
     "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
-    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
-       
+    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",      
 }
 
 def get_youtube_audio_url(youtube_url):
@@ -29,17 +28,28 @@ def get_youtube_audio_url(youtube_url):
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
-            if "url" in info:
-                return info["url"]
+            return info["url"] if "url" in info else None
     except Exception as e:
         print(f"Error extracting YouTube audio: {e}")
     return None
 
 def generate_stream(url):
-    """Transcodes and serves audio using FFmpeg."""
+    """Transcodes and serves audio using FFmpeg with low latency settings."""
     try:
         process = subprocess.Popen(
-            ["ffmpeg", "-re", "-i", url, "-vn", "-b:a", "64k", "-f", "mp3", "-"],
+            [
+                "ffmpeg",
+                "-reconnect", "1",
+                "-reconnect_streamed", "1",
+                "-reconnect_delay_max", "5",
+                "-i", url,
+                "-vn",                         # disable video
+                "-b:a", "32k",                 # use a lower audio bitrate to reduce data usage/buffering
+                "-f", "mp3",
+                "-fflags", "nobuffer",
+                "-flags", "low_delay",
+                "-"
+            ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
