@@ -3,10 +3,8 @@ import subprocess
 import requests
 from flask import Flask, Response
 
-# Ensure yt-dlp is installed (useful for Koyeb deployment)
-os.system("pip install --upgrade yt-dlp")
-
 app = Flask(__name__)
+
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
@@ -54,9 +52,8 @@ RADIO_STATIONS = {
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
-
 def get_youtube_audio_url(youtube_url):
-    """Fetch direct YouTube audio URL using yt-dlp (without cookies)."""
+    """Fetch direct YouTube audio URL using yt-dlp."""
     try:
         result = subprocess.run(
             ["yt-dlp", "-g", "-f", "bestaudio", youtube_url],
@@ -76,16 +73,17 @@ def generate_stream(url):
     process = subprocess.Popen(
         [
             "ffmpeg",
-            "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
+            "-reconnect_at_eof", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
             "-i", url,
             "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
             "-bufsize", "256k",
             "-fflags", "nobuffer",
             "-flush_packets", "1",
-            "-f", "mp3", "-"
+            "-f", "mp3", "-",
+            "-loglevel", "error"
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL  # Suppress FFmpeg logs
+        stderr=subprocess.PIPE  # Capture errors
     )
     return process.stdout
 
@@ -98,7 +96,7 @@ def stream(station_name):
         return "Station not found", 404
 
     # Handle YouTube URLs separately
-    if "youtube.com" in url or "youtu.be" in url:
+    if "youtube.com" in url or "youtu.be" in url or "www.youtube.com" in url:
         url = get_youtube_audio_url(url)
         if not url:
             return "Failed to get YouTube stream", 500
@@ -106,10 +104,6 @@ def stream(station_name):
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
-
-    
-
-
+    app.run(host="0.0.0.0", port=8000)
     
       
