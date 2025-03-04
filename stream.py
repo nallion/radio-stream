@@ -1,9 +1,12 @@
+import os
 import subprocess
 import requests
 from flask import Flask, Response
 
-app = Flask(__name__)
+# Ensure yt-dlp is installed (useful for Koyeb deployment)
+os.system("pip install --upgrade yt-dlp")
 
+app = Flask(__name__)
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
@@ -51,14 +54,28 @@ RADIO_STATIONS = {
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
+ 
+
+# List of radio stations & YouTube Live links
+RADIO_STATIONS = {
+    "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
+    "air_calicut": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio082/chunklist.m3u8",
+    "manjeri_fm": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio101/chunklist.m3u8",
+    "media_one": "https://www.youtube.com/@MediaoneTVLive/live",  # Example YouTube stream
+}
+
 def get_youtube_audio_url(youtube_url):
-    """Fetch direct YouTube audio URL using yt-dlp."""
+    """Fetch direct YouTube audio URL using yt-dlp (without cookies)."""
     try:
         result = subprocess.run(
-            ["yt-dlp", "--cookies", "cookies.txt", "-g", "-f", "bestaudio", youtube_url],
+            ["yt-dlp", "-g", "-f", "bestaudio", youtube_url],
             capture_output=True, text=True, check=True
         )
-        return result.stdout.strip()
+        url = result.stdout.strip()
+        if not url:
+            print(f"Error: yt-dlp returned empty URL for {youtube_url}")
+            return None
+        return url
     except subprocess.CalledProcessError as e:
         print(f"Error fetching YouTube audio: {e.stderr}")
         return None
@@ -89,6 +106,7 @@ def stream(station_name):
     if not url:
         return "Station not found", 404
 
+    # Handle YouTube URLs separately
     if "youtube.com" in url or "youtu.be" in url:
         url = get_youtube_audio_url(url)
         if not url:
@@ -98,6 +116,8 @@ def stream(station_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
+    
 
 
     
