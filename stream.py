@@ -1,8 +1,10 @@
-import os
+
 import subprocess
+from flask import jsonify
 import requests
 import signal
-from flask import Flask, Response, jsonify, request
+import yt_dlp
+from flask import Flask, Response
 
 app = Flask(__name__)
 # List of radio stations & YouTube Live links
@@ -54,29 +56,20 @@ RADIO_STATIONS = {
 
 
 def get_youtube_audio_url(youtube_url):
-    """Fetch direct YouTube audio URL using yt-dlp."""
-    try:
-        process = subprocess.Popen(
-            ["yt-dlp", "-g", "-f", "bestaudio", youtube_url],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        stdout, stderr = process.communicate()
+    """Extracts direct audio stream URL from YouTube Live."""
+    try:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "quiet": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+            if "url" in info:
+                return info["url"]
+    except Exception as e:
+        print(f"Error extracting YouTube audio: {e}")
 
-        if process.returncode != 0:
-            app.logger.error(f"yt-dlp error: {stderr.strip()}")
-            return None
-
-        url = stdout.strip()
-        if not url:
-            app.logger.error(f"yt-dlp returned empty URL for {youtube_url}")
-            return None
-
-        return url
-    except Exception as e:
-        app.logger.error(f"Exception in get_youtube_audio_url: {str(e)}")
-        return None
+    return None
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg."""
