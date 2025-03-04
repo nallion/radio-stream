@@ -29,13 +29,8 @@ RADIO_STATIONS = {
     "al_nour": "http://audiostreaming.itworkscdn.com:9066/",
     "muthnabi_radio": "http://cast4.my-control-panel.com/proxy/muthnabi/stream",
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
-    "24_news": "https://www.youtube.com/@24OnLive/live",
-    "shajahan_rahmani": "https://www.youtube.com/@ShajahanRahmaniOfficial/live",
-    "qsc_mukkam": "https://www.youtube.com/c/quranstudycentremukkam/live",
-    "valiyudheen_faizy": "https://www.youtube.com/@voiceofvaliyudheenfaizy600/live",
-    "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
-    "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
-    "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
+    "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
+    "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
 def get_youtube_audio_url(youtube_url):
