@@ -51,26 +51,16 @@ RADIO_STATIONS = {
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
-# Change to a working Invidious instance
-INVIDIOUS_INSTANCE = "https://vid.puffyan.us"
-
-def get_invidious_audio_url(youtube_url):
-    """Fetch direct audio URL from Invidious API."""
-    video_id = youtube_url.split("v=")[-1] if "v=" in youtube_url else youtube_url.split("/")[-1]
-
-    api_url = f"{INVIDIOUS_INSTANCE}/api/v1/videos/{video_id}"
-    
+def get_youtube_audio_url(youtube_url):
+    """Fetch direct YouTube audio URL using yt-dlp."""
     try:
-        response = requests.get(api_url, timeout=10)
-        data = response.json()
-        
-        # Extract best available audio URL
-        for format in data.get("adaptiveFormats", []):
-            if format.get("type") == "audio/mp4":
-                return format["url"]
-
-    except Exception as e:
-        print(f"Error fetching from Invidious: {e}")
+        result = subprocess.run(
+            ["yt-dlp", "--cookies", "cookies.txt", "-g", "-f", "bestaudio", youtube_url],
+            capture_output=True, text=True, check=True
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Error fetching YouTube audio: {e.stderr}")
         return None
 
 def generate_stream(url):
@@ -100,7 +90,7 @@ def stream(station_name):
         return "Station not found", 404
 
     if "youtube.com" in url or "youtu.be" in url:
-        url = get_invidious_audio_url(url)
+        url = get_youtube_audio_url(url)
         if not url:
             return "Failed to get YouTube stream", 500
 
@@ -108,3 +98,7 @@ def stream(station_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
+
+    
+      
