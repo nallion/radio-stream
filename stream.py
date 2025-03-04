@@ -1,10 +1,14 @@
+
+
+
+
 import os
 import subprocess
 import requests
-from flask import Flask, Response
+import signal
+from flask import Flask, Response, jsonify, request
 
 app = Flask(__name__)
-
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
@@ -52,20 +56,30 @@ RADIO_STATIONS = {
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
+
 def get_youtube_audio_url(youtube_url):
     """Fetch direct YouTube audio URL using yt-dlp."""
     try:
-        result = subprocess.run(
+        process = subprocess.Popen(
             ["yt-dlp", "-g", "-f", "bestaudio", youtube_url],
-            capture_output=True, text=True, check=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
-        url = result.stdout.strip()
-        if not url:
-            print(f"Error: yt-dlp returned empty URL for {youtube_url}")
+        stdout, stderr = process.communicate()
+
+        if process.returncode != 0:
+            app.logger.error(f"yt-dlp error: {stderr.strip()}")
             return None
+
+        url = stdout.strip()
+        if not url:
+            app.logger.error(f"yt-dlp returned empty URL for {youtube_url}")
+            return None
+
         return url
-    except subprocess.CalledProcessError as e:
-        print(f"Error fetching YouTube audio: {e.stderr}")
+    except Exception as e:
+        app.logger.error(f"Exception in get_youtube_audio_url: {str(e)}")
         return None
 
 def generate_stream(url):
@@ -83,9 +97,28 @@ def generate_stream(url):
             "-loglevel", "error"
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE  # Capture errors
+        stderr=subprocess.PIPE
     )
-    return process.stdout
+
+    def stream():
+        try:
+            while True:
+                chunk = process.stdout.read(4096)
+                if not chunk:
+                    break
+                yield chunk
+        except GeneratorExit:
+            app.logger.info("Client disconnected, terminating FFmpeg process")
+            process.send_signal(signal.SIGTERM)
+        finally:
+            process.wait()
+
+    return stream()
+
+@app.route("/stations", methods=["GET"])
+def list_stations():
+    """Returns a list of available radio stations."""
+    return jsonify(list(RADIO_STATIONS.keys()))
 
 @app.route("/<station_name>")
 def stream(station_name):
@@ -93,17 +126,19 @@ def stream(station_name):
     url = RADIO_STATIONS.get(station_name)
 
     if not url:
-        return "Station not found", 404
+        return jsonify({"error": "Station not found"}), 404
 
     # Handle YouTube URLs separately
-    if "youtube.com" in url or "youtu.be" in url or "www.youtube.com" in url:
+    if "youtube.com" in url or "youtu.be" in url:
         url = get_youtube_audio_url(url)
         if not url:
-            return "Failed to get YouTube stream", 500
+            return jsonify({"error": "Failed to get YouTube stream"}), 500
 
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
-    
-      
+    app.run(host="0.0.0.0", port=8000, threaded=True)
+
+
+
+ 
