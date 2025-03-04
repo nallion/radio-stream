@@ -1,4 +1,3 @@
-
 import subprocess
 from flask import jsonify
 import requests
@@ -7,6 +6,7 @@ import yt_dlp
 from flask import Flask, Response
 
 app = Flask(__name__)
+
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
@@ -48,28 +48,29 @@ RADIO_STATIONS = {
     "quran_radio_nablus": "http://www.quran-radio.org:8002/",
     "allahu_akbar_radio": "http://66.45.232.132:9996/stream",
     "yemen_talk": "http://stream.zeno.fm/7qv7c8eq7hhvv",
-    "hob_nabi": "http://216.245:210.78:8098/stream",
+    "hob_nabi": "http://216.245.210.78:8098/stream",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
-
 def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live."""
-    try:
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "quiet": True,
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            if "url" in info:
-                return info["url"]
-    except Exception as e:
-        print(f"Error extracting YouTube audio: {e}")
-
-    return None
+    """Extracts direct audio stream URL from YouTube Live."""
+    try:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "quiet": True,
+            "geo_bypass": True,
+            "noplaylist": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+            if "url" in info:
+                return info["url"]
+    except Exception as e:
+        print(f"Error extracting YouTube audio: {e}")
+    
+    return None
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg."""
@@ -127,7 +128,3 @@ def stream(station_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, threaded=True)
-
-
-
- 
