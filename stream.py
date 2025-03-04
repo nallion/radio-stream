@@ -45,6 +45,7 @@ RADIO_STATIONS = {
     "quran_radio_nablus": "http://www.quran-radio.org:8002/",
     "allahu_akbar_radio": "http://66.45.232.132:9996/stream",
     "yemen_talk": "http://stream.zeno.fm/7qv7c8eq7hhvv",
+    "hob_nabi": "http://216.245:210.78:8098/stream",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
