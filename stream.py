@@ -54,15 +54,6 @@ RADIO_STATIONS = {
     "media_one": "https://www.youtube.com/@MediaoneTVLive/live",
 }
 
- 
-
-# List of radio stations & YouTube Live links
-RADIO_STATIONS = {
-    "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
-    "air_calicut": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio082/chunklist.m3u8",
-    "manjeri_fm": "https://air.pc.cdn.bitgravity.com/air/live/pbaudio101/chunklist.m3u8",
-    "media_one": "https://www.youtube.com/@MediaoneTVLive/live",  # Example YouTube stream
-}
 
 def get_youtube_audio_url(youtube_url):
     """Fetch direct YouTube audio URL using yt-dlp (without cookies)."""
