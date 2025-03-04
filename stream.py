@@ -1,10 +1,9 @@
 import subprocess
+import requests
 from flask import Flask, Response
-import yt_dlp
 
 app = Flask(__name__)
 
-# List of radio stations & YouTube Live links
 # List of radio stations & YouTube Live links
 RADIO_STATIONS = {
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
@@ -62,43 +61,47 @@ RADIO_STATIONS = {
     "skicr_tv": "https://www.youtube.com/@SKICRTV/live",
     "yaqeen_institute": "https://www.youtube.com/@yaqeeninstituteofficial/live",
     "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
-
 }
 
-def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live."""
-    try:
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "quiet": True,
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            if "url" in info:
-                return info["url"]
-    except Exception as e:
-        print(f"Error extracting YouTube audio: {e}")
+# Change to a working Invidious instance
+INVIDIOUS_INSTANCE = "https://vid.puffyan.us"
 
-    return None
+def get_invidious_audio_url(youtube_url):
+    """Fetch direct audio URL from Invidious API."""
+    video_id = youtube_url.split("v=")[-1] if "v=" in youtube_url else youtube_url.split("/")[-1]
+
+    api_url = f"{INVIDIOUS_INSTANCE}/api/v1/videos/{video_id}"
+    
+    try:
+        response = requests.get(api_url, timeout=10)
+        data = response.json()
+        
+        # Extract best available audio URL
+        for format in data.get("adaptiveFormats", []):
+            if format.get("type") == "audio/mp4":
+                return format["url"]
+
+    except Exception as e:
+        print(f"Error fetching from Invidious: {e}")
+        return None
 
 def generate_stream(url):
-    """Transcodes and serves audio using FFmpeg with buffering fixes."""
+    """Transcodes and serves audio using FFmpeg."""
     process = subprocess.Popen(
         [
             "ffmpeg",
             "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
             "-i", url,
             "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
-            "-bufsize", "256k",  # Increase buffer size to prevent skipping
-            "-fflags", "nobuffer",  # Disable FFmpeg's default buffering
-            "-flush_packets", "1",  # Ensure packets are sent immediately
+            "-bufsize", "256k",
+            "-fflags", "nobuffer",
+            "-flush_packets", "1",
             "-f", "mp3", "-"
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL  # Suppress unnecessary FFmpeg logs
+        stderr=subprocess.DEVNULL  # Suppress FFmpeg logs
     )
     return process.stdout
-
 
 @app.route("/<station_name>")
 def stream(station_name):
@@ -109,7 +112,7 @@ def stream(station_name):
         return "Station not found", 404
 
     if "youtube.com" in url or "youtu.be" in url:
-        url = get_youtube_audio_url(url)
+        url = get_invidious_audio_url(url)
         if not url:
             return "Failed to get YouTube stream", 500
 
