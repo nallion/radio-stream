@@ -1,6 +1,6 @@
 import subprocess
 from flask import Flask, Response
-import streamlink  # Using Streamlink instead of yt-dlp
+
 
 app = Flask(__name__)
 
@@ -55,14 +55,6 @@ RADIO_STATIONS = {
 }
 
     
-def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio URL from YouTube Live using Streamlink."""
-    streams = streamlink.streams(youtube_url)
-    if "audio" in streams:
-        return streams["audio"].url  # Prefer audio stream if available
-    elif "best" in streams:
-        return streams["best"].url  # Fallback to best available
-    return None
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg with buffering fixes."""
@@ -89,10 +81,7 @@ def stream(station_name):
     if not url:
         return "Station not found", 404
 
-    if "youtube.com" in url or "youtu.be" in url:
-        url = get_youtube_audio_url(url)
-        if not url:
-            return "Failed to get YouTube stream", 500
+    
 
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
