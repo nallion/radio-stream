@@ -1,6 +1,6 @@
 import subprocess
 from flask import Flask, Response
-
+import yt_dlp
 
 app = Flask(__name__)
 
@@ -49,28 +49,37 @@ RADIO_STATIONS = {
     "omar_abdul_kafi_radio": "http://104.7.66.64:8007",
     "asianet_news": "https://vidcdn.vidgyor.com/asianet-origin/audioonly/chunks.m3u8",
     "yemen_talk": "http://stream.zeno.fm/7qv7c8eq7hhvv",
-    "media_one": "https://inv.nadeko.net/watch?v=-8d8-c0yvyU",
+    "media_one": "https://www.youtube.com/watch?v=-8d8-c0yvyU",
     "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
     
+def get_youtube_audio_url(youtube_url):
+    """Extracts direct audio stream URL from YouTube Live."""
+    try:
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "quiet": True,
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=False)
+            if "url" in info:
+                return info["url"]
+    except Exception as e:
+        print(f"Error extracting YouTube audio: {e}")
+
+    return None
 
 def generate_stream(url):
-    """Transcodes and serves audio using FFmpeg with buffering fixes."""
+    """Transcodes and serves audio using FFmpeg."""
     process = subprocess.Popen(
         [
-            "ffmpeg",
-            "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
-            "-i", url,
-            "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
-            "-bufsize", "256k",
-            "-fflags", "nobuffer",
-            "-flush_packets", "1",
-            "-f", "mp3", "-"
+            "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
+            "-reconnect_delay_max", "5", "-i", url, "-vn",
+            "-b:a", "64k", "-f", "mp3", "-"
         ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     return process.stdout
 
@@ -78,11 +87,19 @@ def generate_stream(url):
 def stream(station_name):
     """Serve the requested station as a live stream."""
     url = RADIO_STATIONS.get(station_name)
+
     if not url:
         return "Station not found", 404
 
-    
+    if "youtube.com" in url or "youtu.be" in url:
+        url = get_youtube_audio_url(url)
+        if not url:
+            return "Failed to get YouTube stream", 500
 
+    return Response(generate_stream(url), mimetype="audio/mpeg")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
 if __name__ == "__main__":
