@@ -24,7 +24,8 @@ RADIO_STATIONS = {
     "nur_ala_nur": "http://104.7.66.64:8011/",
     "seiyun_radio": "http://s2.radio.co/s26c62011e/listen",
     "real_fm": "http://air.pc.cdn.bitgravity.com/air/live/pbaudio083/playlist.m3u8",
-    "noor_al_eman": "http://edge.mixlr.com/channel/boaht",
+    "noor_al_eman":
+    "al_jazeera": "http://live-his-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8", "http://edge.mixlr.com/channel/boaht",
     "radio_keralam": "http://ice31.securenetsystems.net/RADIOKERAL",
     "al_nour": "http://audiostreaming.itworkscdn.com:9066/",
     "muthnabi_radio": "http://cast4.my-control-panel.com/proxy/muthnabi/stream",
