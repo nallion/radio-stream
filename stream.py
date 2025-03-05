@@ -59,9 +59,12 @@ def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live."""
     try:
         ydl_opts = {
-            "format": "91",  # Explicitly select format 91
-            "quiet": True,
-            "cookies": "/mnt/data/cookies.txt",   # Path to cookies file
+           ydl_opts = {
+    "format": "bestaudio",
+    "quiet": True,
+    "cookies": "/mnt/data/cookies.txt",
+}
+  # Path to cookies file
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
