@@ -62,7 +62,7 @@ def get_youtube_audio_url(youtube_url):
     "format": "bestaudio",
     "quiet": True,
     "cookies": "/mnt/data/cookies.txt",
-}
+
   # Path to cookies file
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
