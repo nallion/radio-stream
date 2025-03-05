@@ -61,7 +61,7 @@ def get_youtube_audio_url(youtube_url):
         ydl_opts = {
             "format": "bestaudio/best",
             "quiet": True,
-            "cookies": "cookies.txt",  # Path to cookies file
+            "cookies": "/mnt/data/cookies.txt",   # Path to cookies file
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
