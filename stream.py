@@ -1,6 +1,6 @@
 import subprocess
 from flask import Flask, Response
-import yt_dlp
+import streamlink  # Using Streamlink instead of yt-dlp
 
 app = Flask(__name__)
 
@@ -54,19 +54,15 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
+    
 def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live."""
-    try:
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "quiet": True,
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            return info.get("url")
-    except Exception as e:
-        print(f"Error extracting YouTube audio: {e}")
-        return None
+    """Extracts direct audio URL from YouTube Live using Streamlink."""
+    streams = streamlink.streams(youtube_url)
+    if "audio" in streams:
+        return streams["audio"].url  # Prefer audio stream if available
+    elif "best" in streams:
+        return streams["best"].url  # Fallback to best available
+    return None
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg with buffering fixes."""
@@ -76,13 +72,13 @@ def generate_stream(url):
             "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
             "-i", url,
             "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
-            "-bufsize", "256k",  # Increase buffer size to prevent skipping
-            "-fflags", "nobuffer",  # Disable FFmpeg's default buffering
-            "-flush_packets", "1",  # Ensure packets are sent immediately
+            "-bufsize", "256k",
+            "-fflags", "nobuffer",
+            "-flush_packets", "1",
             "-f", "mp3", "-"
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL  # Suppress unnecessary FFmpeg logs
+        stderr=subprocess.DEVNULL
     )
     return process.stdout
 
