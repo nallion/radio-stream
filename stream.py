@@ -78,10 +78,10 @@ def generate_stream(url):
     """Transcodes and serves audio using FFmpeg."""
     process = subprocess.Popen(
         [
-            "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-            "-reconnect_delay_max", "5", "-i", url, "-vn",
-            "-b:a", "64k", "-f", "mp3", "-"
-        ],
+    "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
+    "-reconnect_delay_max", "10", "-i", url, "-vn",
+    "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
+],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     return process.stdout
