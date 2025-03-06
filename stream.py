@@ -55,54 +55,47 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
+def generate_stream(url):
+    """Streams audio using FFmpeg with no repeat and fast reconnect."""
+    process = None
 
-def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
-    try:
-        command = [
-            "yt-dlp",
-            "--cookies", "/mnt/data/cookies.txt",
-            "--force-generic-extractor",
-            "-f", "91",  # Audio format (unchanged)
-            "-g", youtube_url
-        ]
-        result = subprocess.run(command, capture_output=True, text=True)
-
-        if result.returncode == 0:
-            return result.stdout.strip()
-        else:
-            print(f"Error extracting YouTube audio: {result.stderr}")
-            return None
-    except Exception as e:
-        print(f"Exception: {e}")
-        return None
-
-def generate_stream(youtube_url):
-    """Streams YouTube audio and refreshes the link before stopping."""
     while True:
-        audio_url = get_youtube_audio_url(youtube_url)  # Keeps your existing logic
+        if process:
+            process.kill()  # Ensure old process is stopped before starting a new one
 
-        if not audio_url:
-            break
-
-        # Run ffmpeg with reconnect options
         process = subprocess.Popen(
-            ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5", 
-             "-i", audio_url, "-vn", "-b:a", "64k", "-f", "mp3", "-"],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+            [
+                "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
+                "-reconnect_delay_max", "3", "-rw_timeout", "1000000",
+                "-i", url, "-vn", "-b:a", "64k", "-f", "mp3", "-flush_packets", "1",
+                "-fflags", "nobuffer", "-flags", "low_delay"
+            ],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=4096
         )
 
-        start_time = time.time()
-        for chunk in iter(lambda: process.stdout.read(1024), b""):
-            yield chunk
-            if time.time() - start_time > 80:  # Refresh stream every 80 seconds
-                process.terminate()
-                break
+        print(f"Streaming from: {url}")
 
-@app.route('/stream')
-def stream():
-    youtube_url = "YOUR_YOUTUBE_LIVE_URL"  # Replace with actual YouTube live URL
-    return Response(generate_stream(youtube_url), mimetype="audio/mpeg")
+        try:
+            for chunk in iter(lambda: process.stdout.read(4096), b""):
+                yield chunk
+        except GeneratorExit:
+            process.kill()
+            break
+        except Exception as e:
+            print(f"Stream error: {e}")
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, threaded=True)
+        print("FFmpeg stopped, restarting stream...")
+        time.sleep(2)
+
+@app.route("/<station_name>")
+def stream(station_name):
+    """Serve the requested station as a live stream."""
+    url = RADIO_STATIONS.get(station_name)
+
+    if not url:
+        return "Station not found", 404
+
+    return Response(generate_stream(url), mimetype="audio/mpeg")
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
