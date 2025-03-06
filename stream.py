@@ -55,7 +55,6 @@ RADIO_STATIONS = {
 }
 
 
-
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
@@ -78,7 +77,10 @@ def get_youtube_audio_url(youtube_url):
         return None
 
 def generate_stream(url):
-    """Streams audio using FFmpeg and refreshes YouTube URLs before expiry."""
+    """Streams audio using FFmpeg with auto-reconnect before expiration."""
+    last_fetched_url = None
+    process = None
+
     while True:
         # Handle YouTube URLs dynamically
         if "youtube.com" in url or "youtu.be" in url:
@@ -88,25 +90,37 @@ def generate_stream(url):
                 time.sleep(30)
                 continue
             url = new_url  # Use extracted URL
+            last_fetched_url = url
+
+        # Start FFmpeg process
+        if process:
+            process.kill()  # Ensure no old processes are running
 
         process = subprocess.Popen(
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
                 "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
+                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "4096k", "-f", "mp3", "-"
             ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
         )
 
         print(f"Streaming from: {url}")
 
-        start_time = time.time()
         try:
+            # Read chunks continuously
             for chunk in iter(lambda: process.stdout.read(8192), b""):
                 yield chunk
-                if time.time() - start_time > 80:  # Refresh URL before 1:25 issue
-                    process.terminate()
-                    break
+
+                # Refresh YouTube link **before** expiration (every 70 sec)
+                if "youtube.com" in last_fetched_url or "youtu.be" in last_fetched_url:
+                    if time.time() % 70 == 0:  # Refresh every 70 seconds
+                        print("Refreshing YouTube stream URL...")
+                        new_url = get_youtube_audio_url(last_fetched_url)
+                        if new_url:
+                            url = new_url
+                            break  # Restart stream with new URL
+
         except GeneratorExit:
             process.kill()
             break
@@ -124,7 +138,7 @@ def stream(station_name):
     if not url:
         return "Station not found", 404
 
-    return Response(generate_stream(url), mimetype="audio/mpeg")
+    return Response(stream_with_context(generate_stream(url)), mimetype="audio/mpeg")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=False)
