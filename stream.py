@@ -4,8 +4,8 @@ import subprocess
 
 app = Flask(__name__)
 
-# Replace with your channel's URL or ID
-CHANNEL_URL = "https://www.youtube.com/c/@24onLive"
+# Use the proper channel URL format (replace with the actual ID)
+CHANNEL_URL = "https://www.youtube.com/c/24onLive"
 
 def get_latest_video_url():
     """Fetch the latest video URL from the given YouTube channel."""
@@ -20,16 +20,30 @@ def get_latest_video_url():
             return info["_entries"][0]["url"]  # Latest video URL
     return None
 
+def get_latest_audio_url():
+    """Get the direct audio stream URL of the latest video."""
+    video_url = get_latest_video_url()
+    if not video_url:
+        return None
+
+    ydl_opts = {
+        "quiet": True,
+        "format": "bestaudio",
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_url, download=False)
+        return info.get("url") if info else None
+
 @app.route("/play")
 def play_audio():
     """Stream the latest YouTube video's audio using FFmpeg."""
-    video_url = get_latest_video_url()
-    if not video_url:
-        return "No video found", 404
+    audio_url = get_latest_audio_url()
+    if not audio_url:
+        return "No audio found", 404
 
-    # Use FFmpeg to extract and stream audio
+    # Stream using FFmpeg
     command = [
-        "ffmpeg", "-i", video_url, "-vn", "-acodec", "libmp3lame", "-b:a", "128k",
+        "ffmpeg", "-i", audio_url, "-vn", "-acodec", "libmp3lame", "-b:a", "128k",
         "-f", "mp3", "pipe:1"
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
