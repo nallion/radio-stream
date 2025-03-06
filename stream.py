@@ -56,14 +56,15 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
+
 def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
+    """Extracts direct audio stream URL from YouTube Live."""
     try:
         command = [
             "yt-dlp",
             "--cookies", "/mnt/data/cookies.txt",
             "--force-generic-extractor",
-            "-f", "91",  # Ensuring -f 91 is used
+            "-f", "91",
             "-g", youtube_url
         ]
         result = subprocess.run(command, capture_output=True, text=True)
@@ -91,7 +92,7 @@ def generate_stream(url):
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
                 "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
+                "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
             ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
         )
