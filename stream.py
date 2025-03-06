@@ -1,7 +1,5 @@
 import subprocess
-import time
-import logging
-from flask import Flask, Response, stream_with_context
+from flask import Flask, Response
 
 app = Flask(__name__)
 
@@ -56,9 +54,8 @@ RADIO_STATIONS = {
 }
 
 
-logging.basicConfig(level=logging.INFO)
-
 def get_youtube_audio_url(youtube_url):
+    """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
         command = [
             "yt-dlp",
@@ -68,85 +65,56 @@ def get_youtube_audio_url(youtube_url):
             "-g", youtube_url
         ]
         result = subprocess.run(command, capture_output=True, text=True)
-
+        
         if result.returncode == 0:
-            return result.stdout.strip()
+            return result.stdout.strip()  # Extract the direct URL
         else:
-            logging.error(f"Error extracting YouTube audio: {result.stderr}")
-            return None
+            print(f"yt-dlp error: {result.stderr}")
     except Exception as e:
-        logging.exception("Exception occurred while extracting YouTube audio")
-        return None
+        print(f"Error extracting YouTube audio: {e}")
+    
+    return None
 
 def generate_stream(url):
-    last_fetched_url = None
-    process = None
+    """Transcodes and serves audio using FFmpeg with buffering fixes."""
+    process = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
+            "-i", url,
+            "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
+            "-bufsize", "256k",
+            "-fflags", "nobuffer",
+            "-flush_packets", "1",
+            "-f", "mp3", "-"
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL
+    )
+    return process.stdout
 
-    while True:
-        # Handle YouTube URLs
-        if "youtube.com" in url or "youtu.be" in url:
-            new_url = get_youtube_audio_url(url)
-            if not new_url:
-                logging.warning("Failed to get YouTube stream URL, retrying in 30 seconds...")
-                time.sleep(30)
-                continue
-            url = new_url
-            last_fetched_url = url
-
-        # Ensure the previous process is fully terminated
-        if process:
-            process.terminate()
-            process.wait()  # Wait for FFmpeg to exit before starting a new process
-
-        # Start new FFmpeg process
-        process = subprocess.Popen(
-            [
-                "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-                "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "1024k" "-f", "mp3", "-"
-            ],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1024
-        )
-
-        logging.info(f"Streaming from: {url}")
-
-        try:
-            start_time = time.time()
-            while True:
-                chunk = process.stdout.read(1024)
-                if not chunk:
-                    break  # Stop if no more data
-
-                yield chunk  # Send audio chunk
-
-                # If streaming from YouTube, refresh the URL every 70 seconds
-                if "youtube.com" in last_fetched_url or "youtu.be" in last_fetched_url:
-                    if time.time() - start_time >= 70:
-                        logging.info("Refreshing YouTube stream URL...")
-                        new_url = get_youtube_audio_url(last_fetched_url)
-                        if new_url:
-                            url = new_url
-                            break  # Restart FFmpeg with new URL
-                        start_time = time.time()  # Reset timer if no new URL
-
-        except GeneratorExit:
-            process.terminate()
-            process.wait()
-            break
-        except Exception as e:
-            logging.exception("Stream error occurred")
-
-        logging.info("FFmpeg stopped, restarting stream...")
-        time.sleep(5)
-
-@app.route("/<station_name>")
-def stream(station_name):
+@app.route("/play/<station_name>")
+def play_stream(station_name):
+    """Serve the requested station as a live stream."""
     url = RADIO_STATIONS.get(station_name)
 
     if not url:
         return "Station not found", 404
 
-    return Response(stream_with_context(generate_stream(url)), mimetype="audio/mpeg")
+    if "youtube.com" in url or "youtu.be" in url:
+        url = get_youtube_audio_url(url)
+        if not url:
+            return "Failed to get YouTube stream", 500
+
+    return Response(generate_stream(url), mimetype="audio/mpeg")
+
+@app.route("/command/<action>")
+def control_stream(action):
+    """Handles commands to start/stop a stream."""
+    if action == "stop":
+        subprocess.run(["pkill", "ffmpeg"])  # Kills FFmpeg processes
+        return "Stream stopped", 200
+    return "Invalid command", 400
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=False)
+    app.run(host="0.0.0.0", port=8000, debug=True)
