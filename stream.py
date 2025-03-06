@@ -103,9 +103,9 @@ def generate_stream(url):
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
                 "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "8192k" "-f", "mp3", "-"
+                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "1024k" "-f", "mp3", "-"
             ],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1024
         )
 
         logging.info(f"Streaming from: {url}")
@@ -113,7 +113,7 @@ def generate_stream(url):
         try:
             start_time = time.time()
             while True:
-                chunk = process.stdout.read(8192)
+                chunk = process.stdout.read(1024)
                 if not chunk:
                     break  # Stop if no more data
 
