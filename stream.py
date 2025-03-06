@@ -54,8 +54,6 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
-
-
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
@@ -63,7 +61,7 @@ def get_youtube_audio_url(youtube_url):
             "yt-dlp",
             "--cookies", "/mnt/data/cookies.txt",
             "--force-generic-extractor",
-            "-f", "91",  # Ensuring -f 91 is used
+            "-f", "91",  # Audio format
             "-g", youtube_url
         ]
         result = subprocess.run(command, capture_output=True, text=True)
@@ -80,18 +78,20 @@ def get_youtube_audio_url(youtube_url):
 def generate_stream(url):
     """Streams audio using FFmpeg and auto-reconnects."""
     while True:
+        # Handle YouTube URLs dynamically
         if "youtube.com" in url or "youtu.be" in url:
-            url = get_youtube_audio_url(url)
-            if not url:
+            new_url = get_youtube_audio_url(url)
+            if not new_url:
                 print("Failed to get YouTube stream URL, retrying in 30 seconds...")
                 time.sleep(30)
                 continue
+            url = new_url  # Use extracted URL
 
         process = subprocess.Popen(
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
                 "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
+                "-c:a", "libmp3lame", "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
             ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
         )
@@ -121,5 +121,5 @@ def stream(station_name):
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run(host="0.0.0.0", port=8000, debug=False)
 
