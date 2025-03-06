@@ -1,7 +1,6 @@
 import subprocess
 import time 
 from flask import Flask, Response
-import yt_dlp
 
 app = Flask(__name__)
 
@@ -55,6 +54,8 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
+
+
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
@@ -88,8 +89,8 @@ def generate_stream(url):
 
         process = subprocess.Popen(
             [
-                "ffmpeg", "-reconnect_at_eof", "1",
-                "-i", url, "-vn",
+                "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
+                "-reconnect_delay_max", "10", "-i", url, "-vn",
                 "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
             ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
@@ -121,3 +122,4 @@ def stream(station_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
+
