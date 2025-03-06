@@ -58,31 +58,36 @@ RADIO_STATIONS = {
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live."""
     try:
-        ydl_opts = {
-            "format": "91",  # Force format 91 (M3U8)
-            "quiet": True,
-            "cookies": "/mnt/data/cookies.txt",  # Path to cookies file
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=False)
-            if "url" in info:
-                return info["url"]
-    except Exception as e:
-        print(f"Error extracting YouTube audio: {e}")
+        command = [
+            "yt-dlp",
+            "--cookies", "/mnt/data/cookies.txt",
+            "-f", "91",
+            "-g", youtube_url
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
 
-    return None
+        if result.returncode == 0:
+            return result.stdout.strip()  # Extracted URL
+        else:
+            print(f"Error extracting YouTube audio: {result.stderr}")
+            return None
+    except Exception as e:
+        print(f"Exception: {e}")
+        return None
+
 
 def generate_stream(url):
     """Transcodes and serves audio using FFmpeg."""
     process = subprocess.Popen(
         [
-    "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-    "-reconnect_delay_max", "10", "-i", url, "-vn",
-    "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
-],
+            "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
+            "-reconnect_delay_max", "10", "-i", url, "-vn",
+            "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
+        ],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
     return process.stdout
+
 
 @app.route("/<station_name>")
 def stream(station_name):
@@ -99,7 +104,6 @@ def stream(station_name):
 
     return Response(generate_stream(url), mimetype="audio/mpeg")
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
-
-
