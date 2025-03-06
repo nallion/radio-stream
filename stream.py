@@ -83,6 +83,7 @@ def generate_stream(url):
     process = None
 
     while True:
+        # Handle YouTube URLs
         if "youtube.com" in url or "youtu.be" in url:
             new_url = get_youtube_audio_url(url)
             if not new_url:
@@ -92,9 +93,12 @@ def generate_stream(url):
             url = new_url
             last_fetched_url = url
 
+        # Ensure the previous process is fully terminated
         if process:
-            process.kill()
+            process.terminate()
+            process.wait()  # Wait for FFmpeg to exit before starting a new process
 
+        # Start new FFmpeg process
         process = subprocess.Popen(
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
@@ -108,20 +112,26 @@ def generate_stream(url):
 
         try:
             start_time = time.time()
-            for chunk in iter(lambda: process.stdout.read(8192), b""):
-                yield chunk
+            while True:
+                chunk = process.stdout.read(8192)
+                if not chunk:
+                    break  # Stop if no more data
 
+                yield chunk  # Send audio chunk
+
+                # If streaming from YouTube, refresh the URL every 70 seconds
                 if "youtube.com" in last_fetched_url or "youtu.be" in last_fetched_url:
                     if time.time() - start_time >= 70:
                         logging.info("Refreshing YouTube stream URL...")
                         new_url = get_youtube_audio_url(last_fetched_url)
                         if new_url:
                             url = new_url
-                            break
-                        start_time = time.time()
+                            break  # Restart FFmpeg with new URL
+                        start_time = time.time()  # Reset timer if no new URL
 
         except GeneratorExit:
-            process.kill()
+            process.terminate()
+            process.wait()
             break
         except Exception as e:
             logging.exception("Stream error occurred")
