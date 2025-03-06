@@ -54,6 +54,8 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
+
+
 def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
@@ -76,7 +78,7 @@ def get_youtube_audio_url(youtube_url):
         return None
 
 def generate_stream(url):
-    """Streams audio using FFmpeg and auto-reconnects."""
+    """Streams audio using FFmpeg and refreshes YouTube URLs before expiry."""
     while True:
         # Handle YouTube URLs dynamically
         if "youtube.com" in url or "youtu.be" in url:
@@ -98,9 +100,13 @@ def generate_stream(url):
 
         print(f"Streaming from: {url}")
 
+        start_time = time.time()
         try:
             for chunk in iter(lambda: process.stdout.read(8192), b""):
                 yield chunk
+                if time.time() - start_time > 80:  # Refresh URL before 1:25 issue
+                    process.terminate()
+                    break
         except GeneratorExit:
             process.kill()
             break
@@ -122,4 +128,3 @@ def stream(station_name):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=False)
-
