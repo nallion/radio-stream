@@ -1,7 +1,6 @@
-import subprocess
-import time 
 from flask import Flask, Response
-import yt_dlp
+import subprocess
+import time
 
 app = Flask(__name__)
 
@@ -57,42 +56,52 @@ RADIO_STATIONS = {
 }
 
 
-# Function to get fresh YouTube audio URL
 def get_youtube_audio_url(youtube_url):
-    ydl_opts = {
-        'format': 'bestaudio',
-        'quiet': True,
-        'noplaylist': True,
-        'extract_flat': False
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(youtube_url, download=False)
-        return info['url'] if 'url' in info else None
+    """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
+    try:
+        command = [
+            "yt-dlp",
+            "--cookies", "/mnt/data/cookies.txt",
+            "--force-generic-extractor",
+            "-f", "91",  # Audio format (unchanged)
+            "-g", youtube_url
+        ]
+        result = subprocess.run(command, capture_output=True, text=True)
 
-# Function to continuously refresh and stream YouTube audio
+        if result.returncode == 0:
+            return result.stdout.strip()
+        else:
+            print(f"Error extracting YouTube audio: {result.stderr}")
+            return None
+    except Exception as e:
+        print(f"Exception: {e}")
+        return None
+
 def generate_stream(youtube_url):
+    """Streams YouTube audio and refreshes the link before stopping."""
     while True:
-        audio_url = get_youtube_audio_url(youtube_url)  # Get fresh URL
-        if not audio_url:
-            break  # Stop if no valid URL
+        audio_url = get_youtube_audio_url(youtube_url)  # Keeps your existing logic
 
+        if not audio_url:
+            break
+
+        # Run ffmpeg with reconnect options
         process = subprocess.Popen(
-            ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", 
-             "-reconnect_delay_max", "10", "-i", audio_url, "-vn", 
-             "-b:a", "64k", "-f", "mp3", "-"],
+            ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5", 
+             "-i", audio_url, "-vn", "-b:a", "64k", "-f", "mp3", "-"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
         )
 
         start_time = time.time()
         for chunk in iter(lambda: process.stdout.read(1024), b""):
             yield chunk
-            if time.time() - start_time > 60:  # Refresh URL every 60 seconds
+            if time.time() - start_time > 80:  # Refresh stream every 80 seconds
                 process.terminate()
                 break
 
 @app.route('/stream')
 def stream():
-    youtube_url = "https://www.youtube.com/watch?v=YOUR_VIDEO_ID"  # Change to your YouTube link
+    youtube_url = "YOUR_YOUTUBE_LIVE_URL"  # Replace with actual YouTube live URL
     return Response(generate_stream(youtube_url), mimetype="audio/mpeg")
 
 if __name__ == '__main__':
