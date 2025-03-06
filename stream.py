@@ -1,27 +1,18 @@
 import subprocess
 import time
 import json
-import requests
 from flask import Flask, Response
 
 app = Flask(__name__)
 
-# stations
-RADIO_STATIONS = {
-    "rubat_ataq": "http://stream.zeno.fm/5tpfc8d7xqruv",
-    "shahul_radio": "https://stream-150.zeno.fm/cynbm5ngx38uv?zs=Ktca5StNRWm-sdIR7GloVg",
-    "eram_fm": "http://icecast2.edisimo.com:8000/eramfm.mp3",
-    "abc_islam": "http://s10.voscast.com:9276/stream",
-"media_one": "https://www.youtube.com/watch?v=-8d8-c0yvyU",
-}
-
 # Store last played video ID to prevent repetition
 last_played_video = None
 
-
-def get_latest_youtube_video(channel_url):
-    """Fetches the latest video URL from a YouTube channel."""
+def get_latest_youtube_video():
+    """Fetches the latest video URL from MediaOne TV Live's YouTube channel."""
     global last_played_video
+    channel_url = "https://www.youtube.com/@MediaoneTVLive/videos"
+    
     try:
         command = ["yt-dlp", "--flat-playlist", "-J", channel_url]
         result = subprocess.run(command, capture_output=True, text=True)
@@ -86,25 +77,20 @@ def generate_stream(url):
         time.sleep(5)
 
 
-@app.route("/<station_name>")
-def stream(station_name):
-    """Serve the requested station or latest YouTube video audio."""
-    if station_name == "latest_youtube":
-        youtube_url = get_latest_youtube_video("https://www.youtube.com/@YourChannelName/videos")
-        if not youtube_url:
-            return "Failed to get latest YouTube video", 500
-        
-        audio_url = get_youtube_audio_url(youtube_url)
-        if not audio_url:
-            return "Failed to get YouTube audio", 500
-        
-        return Response(generate_stream(audio_url), mimetype="audio/mpeg")
-
-    url = RADIO_STATIONS.get(station_name)
-    if not url:
-        return "Station not found", 404
-
-    return Response(generate_stream(url), mimetype="audio/mpeg")
+@app.route("/latest_youtube")
+def stream_latest_youtube():
+    """Serve the latest YouTube video audio from MediaOne TV Live."""
+    youtube_url = get_latest_youtube_video()
+    
+    if not youtube_url:
+        return "Failed to get latest YouTube video", 500
+    
+    audio_url = get_youtube_audio_url(youtube_url)
+    
+    if not audio_url:
+        return "Failed to get YouTube audio", 500
+    
+    return Response(generate_stream(audio_url), mimetype="audio/mpeg")
 
 
 if __name__ == "__main__":
