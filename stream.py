@@ -64,10 +64,10 @@ def get_youtube_audio_url(youtube_url):
             "yt-dlp",
             "--cookies", "/mnt/data/cookies.txt",
             "--force-generic-extractor",
-            "-f", "91",
+            "-f", "bestaudio[ext=webm]",  # Faster format
             "-g", youtube_url
         ]
-        result = subprocess.run(command, capture_output=True, text=True)
+        result = subprocess.run(command, capture_output=True, text=True, timeout=5)
 
         if result.returncode == 0:
             return result.stdout.strip()
@@ -79,28 +79,30 @@ def get_youtube_audio_url(youtube_url):
         return None
 
 def generate_stream(url):
-    """Streams audio using FFmpeg and auto-reconnects."""
+    """Streams audio using FFmpeg with faster loading."""
     while True:
         if "youtube.com" in url or "youtu.be" in url:
-            url = get_youtube_audio_url(url)
-            if not url:
-                print("Failed to get YouTube stream URL, retrying in 30 seconds...")
-                time.sleep(30)
+            new_url = get_youtube_audio_url(url)
+            if not new_url:
+                print("Failed to get YouTube stream URL, retrying in 10 seconds...")
+                time.sleep(10)
                 continue
+            url = new_url
 
         process = subprocess.Popen(
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-                "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
+                "-reconnect_delay_max", "5", "-rw_timeout", "1000000",  # Reduce delay
+                "-i", url, "-vn",
+                "-b:a", "64k", "-f", "mp3", "-"
             ],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=4096  # Smaller buffer
         )
 
         print(f"Streaming from: {url}")
 
         try:
-            for chunk in iter(lambda: process.stdout.read(8192), b""):
+            for chunk in iter(lambda: process.stdout.read(4096), b""):
                 yield chunk
         except GeneratorExit:
             process.kill()
@@ -109,7 +111,7 @@ def generate_stream(url):
             print(f"Stream error: {e}")
 
         print("FFmpeg stopped, restarting stream...")
-        time.sleep(5)
+        time.sleep(3)  # Shorter wait before retrying
 
 @app.route("/<station_name>")
 def stream(station_name):
