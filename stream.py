@@ -59,11 +59,12 @@ def get_youtube_audio_url(youtube_url):
     """Extracts direct audio stream URL from YouTube Live."""
     try:
         command = [
-            "yt-dlp",
-            "--cookies", "/mnt/data/cookies.txt",
-            "-f", "91",
-            "-g", youtube_url
-        ]
+    "yt-dlp",
+    "--cookies", "/mnt/data/cookies.txt",
+    "--force-generic-extractor",
+    "-f", "91",
+    "-g", youtube_url
+]
         result = subprocess.run(command, capture_output=True, text=True)
 
         if result.returncode == 0:
