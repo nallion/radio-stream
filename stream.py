@@ -55,27 +55,14 @@ RADIO_STATIONS = {
     "victers_tv": "https://932y4x26ljv8-hls-live.5centscdn.com/victers/tv.stream/victers/tv1/chunks.m3u8",   
 }
 
-    
-
-import subprocess
-import time
-from flask import Flask, Response
-
-app = Flask(__name__)
-
-RADIO_STATIONS = {
-    "media_one": "https://www.youtube.com/watch?v=-8d8-c0yvyU",
-    "safari_tv": "https://j78dp346yq5r-hls-live.5centscdn.com/safari/live.stream/chunks.m3u8",
-}
-
 def get_youtube_audio_url(youtube_url):
-    """Extracts direct audio stream URL from YouTube Live."""
+    """Extracts direct audio stream URL from YouTube Live using yt-dlp."""
     try:
         command = [
             "yt-dlp",
             "--cookies", "/mnt/data/cookies.txt",
             "--force-generic-extractor",
-            "-f", "91",
+            "-f", "91",  # Ensuring -f 91 is used
             "-g", youtube_url
         ]
         result = subprocess.run(command, capture_output=True, text=True)
@@ -101,9 +88,9 @@ def generate_stream(url):
 
         process = subprocess.Popen(
             [
-                "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-                "-reconnect_delay_max", "10", "-i", url, "-vn",
-                "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"
+                "ffmpeg", "-reconnect_at_eof", "1",
+                "-i", url, "-vn",
+                "-b:a", "64k", "-buffer_size", "2048k", "-f", "mp3", "-"
             ],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=8192
         )
