@@ -21,7 +21,7 @@ def get_audio_url(youtube_url):
         "yt-dlp",
         "--cookies", "/mnt/data/cookies.txt",
         "--force-generic-extractor",
-        "-f", "140",  # Audio format
+        "-f", "91",  # Audio format
         "-g", youtube_url
     ]
     
