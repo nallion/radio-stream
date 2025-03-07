@@ -16,14 +16,12 @@ YOUTUBE_STREAMS = {
     "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
 }
 
-# 🔄 Caching latest stream URLs to avoid frequent yt-dlp calls
+# 🌍 Store the latest audio stream URLs
 stream_cache = {}
+cache_lock = threading.Lock()
 
 def get_audio_url(youtube_url):
-    """Fetches and caches the latest direct audio URL from YouTube."""
-    if youtube_url in stream_cache and time.time() - stream_cache[youtube_url]["time"] < 300:
-        return stream_cache[youtube_url]["url"]  # Return cached URL if it's still valid
-
+    """Fetch the latest direct audio URL from YouTube."""
     command = [
         "yt-dlp",
         "--cookies", "/mnt/data/cookies.txt",
@@ -35,19 +33,36 @@ def get_audio_url(youtube_url):
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         audio_url = result.stdout.strip() if result.stdout else None
-        if audio_url:
-            stream_cache[youtube_url] = {"url": audio_url, "time": time.time()}  # Update cache
         return audio_url
     except subprocess.CalledProcessError as e:
         print(f"⚠️ Error fetching audio URL: {e}")
         return None
 
-def generate_stream(youtube_url):
-    """Streams audio using FFmpeg."""
+def refresh_stream_url():
+    """Refresh YouTube stream URLs every 2 minutes to avoid expiration."""
     while True:
-        stream_url = get_audio_url(youtube_url)
+        with cache_lock:
+            for station, url in YOUTUBE_STREAMS.items():
+                new_url = get_audio_url(url)
+                if new_url:
+                    stream_cache[station] = new_url
+        time.sleep(120)  # Refresh every 2 minutes
+
+def generate_stream(youtube_url):
+    """Streams audio using FFmpeg, automatically updating the URL when it expires."""
+    while True:
+        with cache_lock:
+            stream_url = stream_cache.get(youtube_url, None)
+        
         if not stream_url:
-            print("⚠️ Failed to fetch stream URL")
+            print("⚠️ No valid stream URL, trying to fetch a new one...")
+            with cache_lock:
+                stream_url = get_audio_url(youtube_url)
+                if stream_url:
+                    stream_cache[youtube_url] = stream_url
+
+        if not stream_url:
+            print("❌ Failed to fetch stream URL")
             return
 
         process = subprocess.Popen(
@@ -57,7 +72,7 @@ def generate_stream(youtube_url):
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=8192
         )
 
-        print(f"🎵 Streaming from: {youtube_url}")
+        print(f"🎵 Streaming from: {stream_url}")
 
         try:
             for chunk in iter(lambda: process.stdout.read(8192), b""):
@@ -68,7 +83,7 @@ def generate_stream(youtube_url):
         except Exception as e:
             print(f"⚠️ Stream error: {e}")
 
-        print("🔄 FFmpeg stopped, restarting stream...")
+        print("🔄 FFmpeg stopped, retrying...")
         time.sleep(5)
 
 @app.route("/play/<station_name>")
@@ -78,6 +93,9 @@ def stream(station_name):
         return "⚠️ Station not found", 404
 
     return Response(generate_stream(youtube_url), mimetype="audio/mpeg")
+
+# 🚀 Start the URL refresher thread
+threading.Thread(target=refresh_stream_url, daemon=True).start()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
