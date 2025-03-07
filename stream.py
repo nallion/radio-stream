@@ -1,5 +1,6 @@
 import subprocess
 import time
+import threading
 from flask import Flask, Response
 
 app = Flask(__name__)
@@ -15,8 +16,14 @@ YOUTUBE_STREAMS = {
     "bayyinah_tv": "https://www.youtube.com/@bayyinah/live",
 }
 
-# 🎵 Extract direct audio stream URL using yt-dlp
+# 🔄 Caching latest stream URLs to avoid frequent yt-dlp calls
+stream_cache = {}
+
 def get_audio_url(youtube_url):
+    """Fetches and caches the latest direct audio URL from YouTube."""
+    if youtube_url in stream_cache and time.time() - stream_cache[youtube_url]["time"] < 300:
+        return stream_cache[youtube_url]["url"]  # Return cached URL if it's still valid
+
     command = [
         "yt-dlp",
         "--cookies", "/mnt/data/cookies.txt",
@@ -24,30 +31,29 @@ def get_audio_url(youtube_url):
         "-f", "91",  # Audio format
         "-g", youtube_url
     ]
-    
+
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
-        return result.stdout.strip() if result.stdout else None
+        audio_url = result.stdout.strip() if result.stdout else None
+        if audio_url:
+            stream_cache[youtube_url] = {"url": audio_url, "time": time.time()}  # Update cache
+        return audio_url
     except subprocess.CalledProcessError as e:
         print(f"⚠️ Error fetching audio URL: {e}")
         return None
 
-# 🔄 Stream YouTube audio via FFmpeg
 def generate_stream(youtube_url):
-    process = None
+    """Streams audio using FFmpeg."""
     while True:
-        if process:
-            process.kill()
-
         stream_url = get_audio_url(youtube_url)
         if not stream_url:
             print("⚠️ Failed to fetch stream URL")
             return
-        
+
         process = subprocess.Popen(
-            ["ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1",
-             "-reconnect_delay_max", "10", "-i", stream_url,
-             "-vn", "-b:a", "64k", "-buffer_size", "1024k", "-f", "mp3", "-"],
+            ["ffmpeg", "-re", "-i", stream_url,
+             "-vn", "-acodec", "libmp3lame", "-b:a", "64k",
+             "-buffer_size", "1024k", "-f", "mp3", "-"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=8192
         )
 
@@ -65,15 +71,13 @@ def generate_stream(youtube_url):
         print("🔄 FFmpeg stopped, restarting stream...")
         time.sleep(5)
 
-# 🌍 API to play YouTube live audio
 @app.route("/play/<station_name>")
 def stream(station_name):
     youtube_url = YOUTUBE_STREAMS.get(station_name)
     if not youtube_url:
         return "⚠️ Station not found", 404
-    
+
     return Response(generate_stream(youtube_url), mimetype="audio/mpeg")
 
-# 🚀 Start Flask server
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000, debug=True)
