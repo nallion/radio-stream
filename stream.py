@@ -1,57 +1,45 @@
+from flask import Flask
+from flask import stream_with_context, request, Response
 import subprocess
 import time
-from flask import Flask, Response, send_from_directory
 
 app = Flask(__name__)
 
-# 📡 List of radio stations
-RADIO_STATIONS = {
-      "rurock": "https://stream02.pcradio.ru/Rock-hi",
-}
+@app.route("/")
+def hello():
+    def generate():
+        startTime = time.time()
+        buffer = []
+        sentBurst = False
 
+        ffmpeg_command = ["ffmpeg", "-i", "https://stream02.pcradio.ru/Rock-hi", "-acodec", "libmp3lame", "-ab", "40k", "-ac", "1", "-f", "mpeg", "pipe:stdout"]
+        process = subprocess.Popen(ffmpeg_command, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = -1)
 
-# 🔄 Streaming function with error handling
-def generate_stream(url):
-    process = None
-    while True:
-        if process:
-            process.kill()  # Stop the old FFmpeg instance before restarting
-        
-        process = subprocess.Popen(
-            [
-                "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10", "-i", url, "-vn", "-ac", "1", "-acodec", "libmp3lame", "-b:a", "40k", "-ar", "32000", "-buffer_size", "2048k", "-f", "mp3", "-"
-            ],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=-1
-        )
+        while True:
+            # Get some data from ffmpeg
+            line = process.stdout.read(1024)
 
-        print(f"🎵 Streaming from: {url} (Mono, 40kbps)")
+            # We buffer everything before outputting it
+            buffer.append(line)
 
-        try:
-            for chunk in iter(lambda: process.stdout.read(1024), b""):
-                yield chunk
-        except GeneratorExit:
-            process.kill()
-            break
-        except Exception as e:
-            print(f"⚠️ Stream error: {e}")
+            # Minimum buffer time, 3 seconds
+            if sentBurst is False and time.time() > startTime + 3 and len(buffer) > 0:
+                sentBurst = True
 
-        print("🔄 FFmpeg stopped, restarting stream...")
-        time.sleep(5)  # Wait before restarting
+                for i in range(0, len(buffer) - 2):
+                    print "Send initial burst #", i
+                    yield buffer.pop(0)
 
-# 🌍 API to stream selected station
-@app.route('/radiobee/<path:path>')
-def send_report(path):
-    # Using request args for path will expose you to directory traversal attacks
-    return send_from_directory('radiobee', path)
+            elif time.time() > startTime + 3 and len(buffer) > 0:
+                yield buffer.pop(0)
 
-@app.route("/<station_name>.mp3")
-def stream(station_name):
-    url = RADIO_STATIONS.get(station_name)
-    if not url:
-        return "⚠️ Station not found", 404
-          
-        return Response(generate_stream(url), mimetype="audio/mpeg")
+            process.poll()
+            if isinstance(process.returncode, int):
+                if process.returncode > 0:
+                    print 'FFmpeg Error', p.returncode
+                break
 
-# 🚀 Start Flask server
+    return Response(stream_with_context(generate()), mimetype = "audio/mpeg")    
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    app.run()
