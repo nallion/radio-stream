@@ -44,7 +44,7 @@ def send_report(path):
     # Using request args for path will expose you to directory traversal attacks
     return send_from_directory('radiobee', path)
 
-@app.route("/<station_name>")
+@app.route("/<station_name>.mp3")
 def stream(station_name):
     url = RADIO_STATIONS.get(station_name)
     if not url:
