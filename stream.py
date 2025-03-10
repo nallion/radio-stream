@@ -21,13 +21,13 @@ def generate_stream(url):
             [
                 "ffmpeg", "-reconnect", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "10", "-i", url, "-vn", "-ac", "1", "-acodec", "libmp3lame", "-b:a", "40k", "-ar", "32000", "-buffer_size", "2048k", "-f", "mp3", "-"
             ],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=0
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=8192
         )
 
         print(f"🎵 Streaming from: {url} (Mono, 40kbps)")
 
         try:
-            for chunk in iter(lambda: process.stdout.read(0), b""):
+            for chunk in iter(lambda: process.stdout.read(8192), b""):
                 yield chunk
         except GeneratorExit:
             process.kill()
