@@ -49,16 +49,8 @@ def stream(station_name):
     url = RADIO_STATIONS.get(station_name)
     if not url:
         return "⚠️ Station not found", 404
-    
-      return
-        Response(generate_stream(url),
-        headers={
-            # NOTE: Ensure stream is not cached.
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-        },
-        mimetype='audio/mpeg')
+          
+        return Response(generate_stream(url), mimetype="audio/mpeg")
 
 # 🚀 Start Flask server
 if __name__ == "__main__":
