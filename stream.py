@@ -27,7 +27,7 @@ def hello():
                 sentBurst = True
 
                 for i in range(0, len(buffer) - 2):
-                    print "Send initial burst #", i
+                    print ("Send initial burst #"), i
                     yield buffer.pop(0)
 
             elif time.time() > startTime + 3 and len(buffer) > 0:
@@ -36,7 +36,7 @@ def hello():
             process.poll()
             if isinstance(process.returncode, int):
                 if process.returncode > 0:
-                    print 'FFmpeg Error', p.returncode
+                    print ('FFmpeg Error'), p.returncode
                 break
 
     return Response(stream_with_context(generate()), mimetype = "audio/mpeg")    
