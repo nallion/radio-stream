@@ -8,5 +8,5 @@ RUN apt update && apt upgrade -y && \
     apt autoremove && apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-CMD ["/start.sh"]
+RUN icecast2 -n -c /etc/icecast2/icecast.xml
 EXPOSE 8000
