@@ -8,5 +8,5 @@ RUN apt update && apt upgrade -y && \
     apt autoremove && apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN sudo -u icecast2 icecast2 -n -c /etc/icecast2/icecast.xml
+RUN sudo -Eu icecast2 icecast2 -n -c /etc/icecast2/icecast.xml
 EXPOSE 8000
