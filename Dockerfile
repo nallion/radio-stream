@@ -8,5 +8,5 @@ RUN apt update && apt upgrade -y && \
     apt autoremove && apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN /etc/init.d/icecast2 start
+CMD ["/start.sh"]
 EXPOSE 8000
