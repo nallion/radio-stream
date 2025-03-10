@@ -1,6 +1,6 @@
 import subprocess
 import time
-from flask import Flask, Response
+from flask import Flask, Response, send_from_directory
 
 app = Flask(__name__)
 
@@ -87,6 +87,11 @@ def generate_stream(url):
         time.sleep(5)  # Wait before restarting
 
 # 🌍 API to stream selected station
+@app.route('/radiobee/<path:path>')
+def send_report(path):
+    # Using request args for path will expose you to directory traversal attacks
+    return send_from_directory('radiobee', path)
+
 @app.route("/<station_name>")
 def stream(station_name):
     url = RADIO_STATIONS.get(station_name)
