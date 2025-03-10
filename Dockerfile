@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM docker.io/library/debian:bullseye-slim
 
 # install icecast2 and enable its autostart
 RUN apt update && apt upgrade -y && \
@@ -8,5 +8,5 @@ RUN apt update && apt upgrade -y && \
     apt autoremove && apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-CMD /etc/init.d/icecast2 start
+RUN /etc/init.d/icecast2 start
 EXPOSE 8000
