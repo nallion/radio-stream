@@ -10,6 +10,8 @@ WORKDIR /app
 # Copy the application files
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN mkdir radiobee
+RUN COPY radiobee.txt radiobee
 
 COPY . .
 
