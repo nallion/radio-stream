@@ -50,8 +50,8 @@ def stream(station_name):
     if not url:
         return "⚠️ Station not found", 404
     
-      return Response(
-        response(),
+      return
+        Response(generate_stream(url),
         headers={
             # NOTE: Ensure stream is not cached.
             'Cache-Control': 'no-cache, no-store, must-revalidate',
