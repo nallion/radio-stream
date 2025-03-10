@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 # 📡 List of radio stations
 RADIO_STATIONS = {
+      "rurock": "https://stream02.pcradio.ru/Rock-hi",
      "rubat_ataq": "http://stream.zeno.fm/5tpfc8d7xqruv",
     "shahul_radio": "https://stream-150.zeno.fm/cynbm5ngx38uv?zs=Ktca5StNRWm-sdIR7GloVg",
     "eram_fm": "http://icecast2.edisimo.com:8000/eramfm.mp3",
