@@ -37,7 +37,7 @@ class FFmpegHandler(BaseHTTPRequestHandler):
         # Stream the output of FFmpeg to the client
         try:
             while True:
-                data = process.stdout.read(1024)  # Read in chunks
+                data = process.stdout.read(4096)  # Read in chunks
                 if not data:
                     break
                 self.wfile.write(data)
