@@ -2,10 +2,13 @@ import subprocess
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
+import threading
 
+# Define your available radio streams
 RADIO_STREAMS = {
     'rock': 'https://stream.pcradio.ru/Rock-hi',
     'rrd': 'https://stream1.radiord.ru:8000/live128.mp3',
+    # Add more streams as needed
 }
 
 class FFmpegHandler(BaseHTTPRequestHandler):
@@ -29,23 +32,37 @@ class FFmpegHandler(BaseHTTPRequestHandler):
 
         # Start FFmpeg process to read from the selected stream
         process = subprocess.Popen(
-           ['ffmpeg', '-re', "-fflags", "nobuffer", "-flags", "low_delay", '-i', stream_url, '-ab', '40k', '-ar', '32000', '-ac', '1', '-bufsize', '2048k', '-f', 'mp3', '-'],
+            ['ffmpeg', '-i', stream_url, '-ab', '32k', '-ar', '32000', '-ac', '1', '-f', 'mp3', '-'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
 
-        # Stream the output of FFmpeg to the client
+        # Create a separate thread to handle stderr output
+        def log_ffmpeg_output():
+            for line in iter(process.stderr.readline, b''):
+                print(line.decode('utf-8').strip())  # Print FFmpeg stderr output to console
+
+        # Start the logging thread
+        threading.Thread(target=log_ffmpeg_output, daemon=True).start()
+
         try:
             while True:
-                data = process.stdout.read(4096)  # Read in chunks
+                data = process.stdout.read(1024)  # Read in chunks
                 if not data:
                     break
-                self.wfile.write(data)
-            process.stdout.close()
+                try:
+                    self.wfile.write(data)
+                except BrokenPipeError:
+                    print("Client disconnected.")
+                    break
+                except Exception as e:
+                    print(f"Error writing to client: {e}")
+                    break
         except Exception as e:
             print(f"Error: {e}")
         finally:
             process.terminate()
+            process.wait()  # Ensure the process has terminated
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
