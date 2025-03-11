@@ -7,10 +7,6 @@ RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 # Set the working directory
 WORKDIR /app
 
-# Copy the application files
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY . .
 
 # Expose port 8000
