@@ -3,11 +3,12 @@ Test instance deployed on free Docker service Koyeb
 
 https://koyeb.tg-gw.com
 
-Test strems available:
+Test streams available:
 
-http://koyeb.tg-gw.com/?stream=rrd
-
-http://koyeb.tg-gw.com/?stream=rock
+http://koyeb.tg-gw.com/?stream=rrd  
+http://koyeb.tg-gw.com/?stream=rock  
+http://koyeb.tg-gw.com/?stream=angels  
+http://koyeb.tg-gw.com/?stream=freshrock  
 
 Code written by ChatGPT
 
