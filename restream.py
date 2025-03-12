@@ -9,6 +9,7 @@ RADIO_STREAMS = {
     'rock': 'https://stream.pcradio.ru/Rock-hi',
     'rrd': 'https://stream1.radiord.ru:8000/live128.mp3',
     'angels': 'http://myradio24.org/angels',
+    'freshrock': 'https://stream.freshrock.net/320.mp3', 
     # Add more streams as needed
 }
 
