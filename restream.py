@@ -10,6 +10,8 @@ RADIO_STREAMS = {
     'rrd': 'https://stream1.radiord.ru:8000/live128.mp3',
     'angels': 'http://myradio24.org/angels',
     'freshrock': 'https://stream.freshrock.net/320.mp3', 
+    'maximum': 'http://radioberezniki.ru:8000/berikimax',
+    'glagol': 'https://a4.radioheart.ru:9007/nonstop',
     # Add more streams as needed
 }
 
