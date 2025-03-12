@@ -10,7 +10,7 @@ http://koyeb.tg-gw.com/?stream=rock
 http://koyeb.tg-gw.com/?stream=angels  
 http://koyeb.tg-gw.com/?stream=freshrock  
 http://koyeb.tg-gw.com/?stream=maximum  
-http://koyeb.tg-gw.com/?stream=glagol  
+http://koyeb.tg-gw.com/?stream=glagol   
 
 
 Code written by ChatGPT
