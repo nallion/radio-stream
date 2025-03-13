@@ -7,12 +7,12 @@ http://koyeb.tg-gw.com
 
 Test streams available:
 
-http://koyeb.tg-gw.com/?stream=rrd  
-http://koyeb.tg-gw.com/?stream=rock  
-http://koyeb.tg-gw.com/?stream=angels  
-http://koyeb.tg-gw.com/?stream=freshrock  
-http://koyeb.tg-gw.com/?stream=maximum  
-http://koyeb.tg-gw.com/?stream=glagol   
+http://koyeb.tg-gw.com/?stream=rrd (Радио Родных Дорог)  
+http://koyeb.tg-gw.com/?stream=rock (Русский Рок)  
+http://koyeb.tg-gw.com/?stream=angels (Радио Ангелов)  
+http://koyeb.tg-gw.com/?stream=freshrock (FreshRock)  
+http://koyeb.tg-gw.com/?stream=maximum (Максимум)  
+http://koyeb.tg-gw.com/?stream=glagol (Глагол)   
 
 
 Code written by ChatGPT
