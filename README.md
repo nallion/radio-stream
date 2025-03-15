@@ -5,6 +5,10 @@ Test instance deployed on free Docker service Koyeb
 
 http://koyeb.tg-gw.com
 
+server stats:  
+
+http://koyeb.tg-gw.com/stats  
+
 Test streams available:
 
 http://koyeb.tg-gw.com/?stream=nashe (Наше радио)  
