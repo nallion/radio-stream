@@ -6,6 +6,7 @@ import threading
 
 # Define your available radio streams
 RADIO_STREAMS = {
+    'nashe': 'https://nashe1.hostingradio.ru:80/nashe-128.mp3',
     'dor': 'https://hls-01-dorognoe.emgsound.ru/15/112/playlist.m3u8',
     'rock': 'https://stream.pcradio.ru/Rock-hi',
     'rrd': 'https://stream1.radiord.ru:8000/live128.mp3',
