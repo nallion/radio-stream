@@ -1,4 +1,4 @@
-Internet radio RE-streamer for LCG Jukebox. Convert by demand any high-quality internet radio to 40kbps/mono AAC stream.  
+Internet radio RE-streamer for LCG Jukebox. Convert by demand any high-quality internet radio to 48kbps/mono AAC stream.  
 Convert URL scheme from HTTPS:// to HTTP://
 
 Test instance deployed on free Docker service Koyeb 
