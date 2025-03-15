@@ -19,8 +19,17 @@ RADIO_STREAMS = {
 
 class FFmpegHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Parse the query parameters
-        query = urlparse(self.path).query
+        # Parse the request path
+        parsed_path = urlparse(self.path)
+        
+        if parsed_path.path == '/stats':
+            # Handle the /stats request
+            self.handle_stats()
+        else:
+            # Handle the radio stream requests
+            self.handle_stream(parsed_path.query)
+
+    def handle_stream(self, query):
         params = parse_qs(query)
         stream_key = params.get('stream', [None])[0]  # Get the 'stream' parameter
 
@@ -69,6 +78,20 @@ class FFmpegHandler(BaseHTTPRequestHandler):
         finally:
             process.terminate()
             process.wait()  # Ensure the process has terminated
+
+    def handle_stats(self):
+        # Execute the 'ps -ax' command
+        try:
+            result = subprocess.run(['ps', '-ax'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            output = result.stdout
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(output.encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.end_headers()
+            self.wfile.write(f'Internal Server Error: {str(e)}'.encode('utf-8'))
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
