@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Install dependencies
-RUN "sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources"
+RUN sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources
 RUN apt-get update && apt-get install -y procps gcc yasm libfdk-aac-dev libssl-dev && rm -rf /var/lib/apt/lists/*
 RUN "wget https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz"
 RUN "tar -xvf ffmpeg-4.4.5.tar.gz -C /usr/src"
