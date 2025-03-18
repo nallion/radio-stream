@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y procps gcc build-essential make yasm li
 RUN wget https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
 RUN tar -xvf ffmpeg-4.4.5.tar.gz -C /usr/src
 RUN cd /usr/src/ffmpeg-4.4.5/
-RUN ./configure --enable-libfdk-aac --enable-openssl
+RUN /bin/bash ./configure --enable-libfdk-aac --enable-openssl
 RUN make
 RUN make install
 
