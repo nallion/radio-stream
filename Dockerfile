@@ -1,5 +1,5 @@
-# Use an official lightweight Python image
-FROM python:3.9-slim
+# Use an official debian image
+FROM debian
 
 # Install dependencies
 RUN sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources
