@@ -6,10 +6,7 @@ RUN sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/de
 RUN apt-get update && apt-get install -y procps gcc build-essential make yasm libfdk-aac-dev libssl-dev wget && rm -rf /var/lib/apt/lists/*
 RUN wget https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
 RUN tar -xvf ffmpeg-4.4.5.tar.gz -C /usr/src
-RUN cd /usr/src/ffmpeg-4.4.5/
-RUN ./configure --enable-libfdk-aac --enable-openssl
-RUN make
-RUN make install
+RUN cd /usr/src/ffmpeg-4.4.5/ &&./configure --enable-libfdk-aac --enable-openssl && make && make install
 
 # Set the working directory
 WORKDIR /app
