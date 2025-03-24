@@ -42,12 +42,12 @@ class FFmpegHandler(BaseHTTPRequestHandler):
             return
 
         self.send_response(200)
-        self.send_header('Content-type', 'audio/aac')  # Change as necessary for your media type
+        self.send_header('Content-type', 'audio/mpeg')  # Change as necessary for your media type
         self.end_headers()
 
         # Start FFmpeg process to read from the selected stream
         process = subprocess.Popen(
-            ['ffmpeg', '-i', stream_url, '-acodec', 'aac', '-ab', '40k', '-ac', '1', '-f', 'adts', '-'],
+            ['ffmpeg', '-i', stream_url, '-acodec', 'mp3', '-ab', '40k', '-ac', '1', '-ar', '32000', '-f', 'adts', '-'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
