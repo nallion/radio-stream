@@ -19,6 +19,8 @@ http://koyeb.tg-gw.com/?stream=angels (Радио Ангелов)
 http://koyeb.tg-gw.com/?stream=freshrock (FreshRock)  
 http://koyeb.tg-gw.com/?stream=maximum (Максимум)  
 http://koyeb.tg-gw.com/?stream=glagol (Глагол)   
+http://koyeb.tg-gw.com/?stream=32radio (32 радио)
+http://koyeb.tg-gw.com/?stream=nashe20 (Наше 2.0) 
 
 
 Code written by ChatGPT
