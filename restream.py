@@ -14,6 +14,8 @@ RADIO_STREAMS = {
     'freshrock': 'https://stream.freshrock.net/320.mp3', 
     'maximum': 'http://radioberezniki.ru:8000/berikimax',
     'glagol': 'https://a4.radioheart.ru:9007/nonstop',
+    '32radio': 'https://online.guberniya.tv:8443/32radio_aac48',
+    'nashe20': 'https://nashe1.hostingradio.ru:18000/nashe20-128.mp3',
     # Add more streams as needed
 }
 
