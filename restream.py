@@ -14,8 +14,6 @@ RADIO_STREAMS = {
     'freshrock': 'https://stream.freshrock.net/320.mp3', 
     'maximum': 'http://radioberezniki.ru:8000/berikimax',
     'glagol': 'https://a4.radioheart.ru:9007/nonstop',
-    '32radio': 'https://online.guberniya.tv:8443/32radio_aac48',
-    'nashe20': 'https://nashe1.hostingradio.ru:18000/nashe20-128.mp3',
     # Add more streams as needed
 }
 
@@ -44,12 +42,12 @@ class FFmpegHandler(BaseHTTPRequestHandler):
             return
 
         self.send_response(200)
-        self.send_header('Content-type', 'audio/mpeg')  # Change as necessary for your media type
+        self.send_header('Content-type', 'audio/aac')  # Change as necessary for your media type
         self.end_headers()
 
         # Start FFmpeg process to read from the selected stream
         process = subprocess.Popen(
-            ['ffmpeg', '-i', stream_url, '-acodec', 'mp3', '-ab', '48k', '-ac', '1', '-f', 'mp3', '-'],
+            ['/usr/local/bin/ffmpeg', '-i', stream_url, '-acodec', 'libfdk_aac', '-profile:a', 'aac_he_v2', '-ab', '24k', '-f', 'adts', '-'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
