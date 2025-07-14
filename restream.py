@@ -42,7 +42,7 @@ class FFmpegHandler(BaseHTTPRequestHandler):
             return
 
         self.send_response(200)
-        self.send_header('Content-type', 'audio/mpeg')  # Change as necessary for your media type
+        self.send_header('Content-type', 'audio/aac')  # Change as necessary for your media type
         self.end_headers()
 
         # Start FFmpeg process to read from the selected stream
