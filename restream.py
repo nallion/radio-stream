@@ -17,6 +17,7 @@ RADIO_STREAMS = {
     '32radio': 'https://online.guberniya.tv:8443/32radio',
     'iskatel': 'https://iskatel.hostingradio.ru:8015/iskatel-128.mp3',
     'donatfmrr': 'https://c6.radioboss.fm/stream/97',
+    'nashe20': 'https://nashe1.hostingradio.ru:18000/nashe20-128.mp3',
     # Add more streams as needed
 }
 
