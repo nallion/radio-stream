@@ -52,7 +52,7 @@ class FFmpegHandler(BaseHTTPRequestHandler):
 
         # Start FFmpeg process to read from the selected stream
         process = subprocess.Popen(
-          ['ffmpeg', '-i', stream_url, '-acodec', 'libmp3lame', '-ar', '32000', '-ab', '40k', '-ac', '1', '-f', 'mp3', '-'],
+          ['ffmpeg', '-i', stream_url, '-acodec', 'libmp3lame', '-ar', '32000', '-ab', '40k', '-ac', '1', '-f', 'mpegts', '-'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
