@@ -19,6 +19,7 @@ RADIO_STREAMS = {
     'donatfmrr': 'https://c6.radioboss.fm/stream/97',
     'nashe20': 'https://nashe1.hostingradio.ru:18000/nashe20-128.mp3',
     'piterfm': 'https://icecast-piterfm.cdnvideo.ru/piterfm',
+    'rodniki': 'https://rodniki.hostingradio.ru/rodniki128.mp3',
     # Add more streams as needed
 }
 
