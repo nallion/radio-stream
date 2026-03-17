@@ -4,6 +4,9 @@ REPO=https://github.com/nallion/radio-stream
 BRANCH=main
 DIR=/var/www/html
 
+# очищаем папку
+rm -rf $DIR/*
+
 # Клонируем или обновляем
 if [ ! -d "$DIR/.git" ]; then
     git clone --depth=1 -b $BRANCH $REPO $DIR
