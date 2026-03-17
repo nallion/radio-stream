@@ -15,6 +15,8 @@ else
     git pull
 fi
 
+#Права на файл
+chmod 777 /var/www/html/mtproxy.txt
 # Запуск php-fpm
 php-fpm -D
 
