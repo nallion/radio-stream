@@ -1,20 +1,21 @@
-# Use an official debian image
-FROM debian
+FROM php:8.2-fpm
 
-# Install dependencies
-RUN sed -i 's/^Components: main$/& contrib non-free/' /etc/apt/sources.list.d/debian.sources
-RUN apt-get update && apt-get install -y procps gcc build-essential make yasm libfdk-aac-dev libssl-dev wget python3 && rm -rf /var/lib/apt/lists/*
-RUN wget https://ffmpeg.org/releases/ffmpeg-4.4.5.tar.gz
-RUN tar -xvf ffmpeg-4.4.5.tar.gz -C /usr/src
-RUN cd /usr/src/ffmpeg-4.4.5/ &&./configure --enable-libfdk-aac --enable-openssl && make && make install
+# Устанавливаем nginx и git
+RUN apt-get update && apt-get install -y \
+    nginx \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory
-WORKDIR /app
+# Папка сайта
+WORKDIR /var/www
 
-COPY . .
+# Копируем конфиг nginx
+COPY nginx.conf /etc/nginx/sites-available/default
 
-# Expose port 8000
+# Скрипт запуска
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 EXPOSE 8000
 
-# Run the application
-CMD ["python3", "restream.py"]
+CMD ["/start.sh"]
