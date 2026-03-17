@@ -15,6 +15,7 @@ COPY nginx.conf /etc/nginx/sites-available/default
 # Скрипт запуска
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
+RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 8000
 
