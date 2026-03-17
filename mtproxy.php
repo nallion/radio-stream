@@ -9,7 +9,7 @@ if (!file_exists($file)) {
 $handle = fopen($file, "r");
 
 while (($line = fgets($handle)) !== false) {
-    echo htmlspecialchars($line) . "<br>";
+    echo htmlspecialchars($line) . "\n";
 }
 
 fclose($handle);
