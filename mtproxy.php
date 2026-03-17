@@ -1,3 +1,63 @@
+212.80.18.74:39090:767cf6f14f461cdd166b54eddb53e1b0
+azirproxy.viramon.net:2087:7sZvSBf6_rbi8-cQRDk8s1FhcGkubmlydmFuYS1zbW9rZS5jb20
+azir_proxy_.viramon.net:2087:7sZvSBf6_rbi8-cQRDk8s1FhcGkubmlydmFuYS1zbW9rZS5jb20
+www.hombus.co.uk.:22:fgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM                                                                                        8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaL                                                                                        SXQYtLCM8VHoNng==
+proxymtproto.telwbion.com.:25565:fgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgS                                                                                        coaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8VHoNngfgScoaLSXQYtLCM8V                                                                                        HoNngfgScoaLSXQYtLCM8VHoNng==
+91.107.255.20:2053:dd35d7424b53edfa76f525c4a028ed4e7b
+91.107.155.175:2053:dd24080aaebdec954f4e0337c6e20fde3e
+sabr.ssboriat.co.uk:531:FgMBAgABAAH8AwOG4kw63Q==
+vaslshid.co.uk.:85:FgMBAgABAAH8AxOG4kw63Q==
+194.120.230.106:433:3XnnAQIAAQAH8AMDhuJMOt0
+https-cdn-ddns.itdeveloper.info.:88:7nnnAQIAAQAH8AMDhuJMOt0=
+91.239.192.153:9443:eeNEgYdJvXrFGRMCIMJdCQ
+185.84.157.102:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.213:4455:ee1603010200010001fc030386e24c3ad3626973636F7474692E79656B7                                                                                        4616E65742E636F6D
+185.3.200.172:2053:ee1603010200010001fc030386e24c3add626973636F7474692E79656B746                                                                                        16E65742E636F6D
+185.3.200.186:2054:ee1603010200010001fc030386e24c3ad3626973636F7474692E79656B746                                                                                        16E65742E636F6D
+185.3.200.185:2053:ee1603010200010001fc030386e24c3add626973636F7474692E79656B746                                                                                        16E65742E636F6D
+91.239.192.154:7443:eeNEgYdJvXrFGRMCIMJdCQ
+185.3.200.191:2053:ee1603010200010001fc030386e24c3ad3626973636F7474692E79656B746                                                                                        16E65742E636F6D
+185.3.200.136:4455:ee1603010200010001fc030386e24c3ad3626973636F7474692E79656B746                                                                                        16E65742E636F6D
+91.239.192.173:140409:eeNEgYdJvXrFGRMCIMJdCQ
+91.239.192.172:140409:eeNEgYdJvXrFGRMCIMJdCQ
+91.239.192.175:140409:eeNEgYdJvXrFGRMCIMJdCQ
+77.72.80.82:9443:eeNEgYdJvXrFGRMCIMJdCQ
+77.72.80.83:9443:eeNEgYdJvXrFGRMCIMJdCQ
+77.72.80.25:9443:eeNEgYdJvXrFGRMCIMJCdQ
+77.72.80.80:9443:79e344818749bd7ac519130220c25d09
+77.72.80.77:9443:79e344818749bd7ac519130220c25d09
+195.254.165.138:4455:ee1603010200010001fc030386e24c3add626973636F7474692E79656B7                                                                                        4616E65742E636F6D
+195.254.165.250:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.244:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.243:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.253:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.249:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.251:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.250:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.241:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.251:25565:dd79e344818749bd7ac519130220c25d09
+5.78.179.191:4455:dd104462821249bd7ac519130220c25d09
+r1.newr1.co.uk:85:FgMBAgABAAH8AxOG4kw63Q
+peyk.acharbashi.info:4515:eee9a4f23b1d768c04a8d7f39120ca5b6e626973636f7474692e79                                                                                        656b74616e65742e636f6d
+alo.acharbashi.info:4515:eee9a4f23b1d768c04a8d7f39120ca5b6e626973636f7474692e796                                                                                        56b74616e65742e636f6d
+147.125.130.62:2083:ee1603010200010001fc030386e24c3add68656c702e737465616d706f77                                                                                        657265642e636f6d
+147.125.130.63:2083:ee1603010200010001fc030386e24c3add68656c702e737465616d706f77                                                                                        657265642e636f6d
+www.spsctr.info.:22:7nnnAQIAAQAH8AMDhuJMOt0=
+https.spsctr.info.:25565:7nnnAQIAAQAH8AMDhuJMOt0=
+185.174.137.50:8443:676c4049812b842b7792954bf2a32943
+hyper.happvpn.cc:8443:ee4852c1c04ab83db8a328c60eaf9a0db268797065722e686170707670                                                                                        6e2e6363
+82.38.71.10:8443:0ba2e4a61df37605307a0f879d96be55
+dedicated.love-internet.xyz:4515:eee9a4f23b1d768c04a8d7f39120ca5b6e626973636f747                                                                                        4692e79656b74616e65742e636f6d
+195.254.165.252:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.247:25565:dd79e344818749bd7ac519130220c25d09
+195.254.165.73:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.212:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.169:2053:ee1603010200010001fc030386e24c3add626973636F7474692E79656B7                                                                                        4616E65742E636F6D
+195.254.165.211:4455:ee1603010200010001fc030386e24c3ad3626973636F7474692E79656B7                                                                                        4616E65742E636F6D
+195.254.165.23:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.71:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.168:9443:eeNEgYdJvXrFGRMCIMJdCQ
+195.254.165.233:65535:eeNEgYdJvXrFGRMCIMJdCQ
 109.120.190.5:443:9f3c7a8d2e4b1c6f5a7d8e9b0c2f4a1d
 179.43.191.102:443:9f3c7a8d2e4b1c6f5a7d8e9b0c2f4a1d
 tg.iloveyou-russia.ru:443:b3a2c62bcd96ee97e40ce5a89ca58f8d
