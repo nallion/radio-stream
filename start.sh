@@ -19,7 +19,7 @@ fi
 php-fpm -D
 
 # запуск nginx
-nginx -g "daemon off;"
-
-#Права на файл
+chown -R www-data:www-data /var/www/html
 chmod -R 777 /var/www/html
+
+nginx -g "daemon off;"
