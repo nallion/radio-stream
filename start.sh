@@ -15,10 +15,11 @@ else
     git pull
 fi
 
-#Права на файл
-chmod 777 /var/www/html/mtproxy.txt
 # Запуск php-fpm
 php-fpm -D
 
 # запуск nginx
 nginx -g "daemon off;"
+
+#Права на файл
+chmod -R 777 /var/www/html
