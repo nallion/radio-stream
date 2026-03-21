@@ -1,22 +1,25 @@
 <?php
-$file = "mtproxy.txt";
 
-if (!file_exists($file)) {
-    die("Файл не найден");
-}
+$url = "https://raw.githubusercontent.com/SoliSpirit/mtproto/refs/heads/master/all_proxies.txt";
 
-// Читаем строки
-$lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$data = file($url, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-if (!$lines) {
-    die("Файл пуст или не удалось прочитать");
+$result = [];
+
+foreach ($data as $line) {
+
+    $query = parse_url($line, PHP_URL_QUERY);
+    parse_str($query, $p);
+
+    if (isset($p['server'], $p['port'], $p['secret'])) {
+        $result[] = $p['server'] . ":" . $p['port'] . ":" . $p['secret'];
+    }
 }
 
 // Перемешиваем
-shuffle($lines);
+shuffle($result);
 
-// Выводим с обычным переносом строки
-foreach ($lines as $line) {
+// Выводим
+foreach ($result as $line) {
     echo $line . PHP_EOL;
 }
-?>
