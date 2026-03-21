@@ -12,7 +12,11 @@ foreach ($data as $line) {
     parse_str($query, $p);
 
     if (isset($p['server'], $p['port'], $p['secret'])) {
-        $result[] = $p['server'] . ":" . $p['port'] . ":" . $p['secret'];
+
+        // Фильтр по порту 443
+        if ($p['port'] == 443) {
+            $result[] = $p['server'] . ":" . $p['port'] . ":" . $p['secret'];
+        }
     }
 }
 
