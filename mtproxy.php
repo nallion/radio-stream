@@ -17,7 +17,7 @@ echo implode(PHP_EOL, $lines);
 
 __halt_compiler();
 proxy.vpncitadel.id:443:04a421876006fc121651796f14540455
-tg-gw.com:443:ddd1a377f2cc4884c05fcd433dbf7089bd
+5.9.157.4:443:ddd1a377f2cc4884c05fcd433dbf7089bd
 tg.tokervpn.ru:443:ab02774b212bf41c19f8f00ab895e2db
 tg.towersflowerss.com:443:90eba2e23b01f1cb32b4b9e29bbd7f80
 guard-3.secureservice.top:443:422c2d5e28f48282a4e2dfaea14fd5a9
